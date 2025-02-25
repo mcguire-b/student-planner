@@ -5,6 +5,8 @@ void main() {
 }
 //test test
 class StudentPlannerApp extends StatelessWidget {
+  const StudentPlannerApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,6 +19,8 @@ class StudentPlannerApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
