@@ -24,7 +24,15 @@ class _TasksScreenState extends State<TasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Tasks')),
+      appBar: AppBar(
+        title: Text('Tasks'),
+        actions: [
+          IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: addTask,
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
@@ -37,10 +45,6 @@ class _TasksScreenState extends State<TasksScreen> {
                     decoration: InputDecoration(labelText: 'Enter a task'),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: addTask,
-                ),
               ],
             ),
           ),
@@ -48,8 +52,30 @@ class _TasksScreenState extends State<TasksScreen> {
             child: ListView.builder(
               itemCount: tasks.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(tasks[index]),
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey, width: 1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row( 
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(tasks[index]),
+                      ),
+                      // delete button
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.purple),
+                        onPressed: () {
+                          setState(() {
+                            tasks.removeAt(index);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
