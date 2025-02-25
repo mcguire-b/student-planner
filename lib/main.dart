@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'tasks_screen.dart';
+
 
 void main() {
   runApp(StudentPlannerApp());
@@ -28,51 +31,42 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<String> tasks = []; // List to store tasks
-  TextEditingController taskController = TextEditingController(); // Controller for task input field
-
-  // Function to add a task to the list
-  void addTask() {
-    if (taskController.text.isNotEmpty) {
-      setState(() {
-        tasks.add(taskController.text);
-      });
-      taskController.clear();
-    }
-  }
+  CalendarFormat calendarFormat = CalendarFormat.month;
+  DateTime selectedDay = DateTime.now();
+  DateTime focusedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Student Planner')),
+      appBar: AppBar(title: Text('Student Planner - Home')),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: taskController,
-                    decoration: InputDecoration(labelText: 'Enter a task'),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: addTask,
-                ),
-              ],
-            ),
+          TableCalendar(
+            firstDay: DateTime.utc(2000, 1, 1),
+            lastDay: DateTime.utc(2100, 12, 31),
+            focusedDay: focusedDay,
+            calendarFormat: calendarFormat,
+            selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+            onDaySelected: (selected, focused) {
+              setState(() {
+                selectedDay = selected;
+                focusedDay = focused;
+              });
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                calendarFormat = format;
+              });
+            },
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(tasks[index]),
-                );
-              },
-            ),
+                    ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TasksScreen()),
+              );
+            },
+            child: Text("Go to Tasks"),
           ),
         ],
       ),
