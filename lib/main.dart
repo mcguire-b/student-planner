@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(StudentPlannerApp());
 }
-//test test
+
+// Root widget of the application
 class StudentPlannerApp extends StatelessWidget {
   const StudentPlannerApp({super.key});
 
@@ -18,6 +19,7 @@ class StudentPlannerApp extends StatelessWidget {
   }
 }
 
+// Home screen widget
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -27,8 +29,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<String> tasks = []; // List to store tasks
-  TextEditingController taskController = TextEditingController();
+  TextEditingController taskController = TextEditingController(); // Controller for task input field
 
+  // Function to add a task to the list
   void addTask() {
     if (taskController.text.isNotEmpty) {
       setState(() {
