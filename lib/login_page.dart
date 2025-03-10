@@ -1,92 +1,136 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart'; // Import directly from lib/
+import 'file_manager.dart'; // Import FileManager for accessing stored user data
+import 'registration_page.dart'; // Import Registration Page
+import 'home_screen.dart'; // Import Home Screen
+
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginPageState createState() => _LoginPageState(); // Creates mutable state
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  bool _isPasswordVisible = false;
+  final _formKey = GlobalKey<FormState>(); // Form key for validation
 
-  void _login() {
-    String email = _emailController.text;
-    String password = _passwordController.text;
+  // Controllers to manage text input fields
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter email and password')),
+  bool _isLoading = false; // Loading state for UI feedback
+
+  // Function to handle login process
+  void _loginUser() async {
+    if (_formKey.currentState!.validate()) { // Validate the form
+      setState(() {
+        _isLoading = true; // Show loading spinner
+      });
+
+      List<Map<String, dynamic>> users = await FileManager.readUserData(); // Read stored users
+      String email = emailController.text;
+      String password = FileManager.encodePassword(passwordController.text);
+
+      print("Stored Users: $users"); // Debugging step
+
+      // Check if user exists and password is correct
+      var user = users.firstWhere(
+        (u) => u["email"] == email && u["password_hash"] == password,
+        orElse: () => <String, dynamic>{}, //
       );
-      return;
+
+      if (user.isNotEmpty) { // Correctly checking if the user exists
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login Successful!")),
+        );
+
+        // Navigate to Home Page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } else { // If user not found
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Invalid email or password!")),
+        );
+      }
+
+      setState(() {
+        _isLoading = false; // Stop loading spinner
+      });
     }
+  }
 
-    // Simulating a successful login (Replace with actual authentication logic)
-    print('Logging in with: $email');
+  // Function to allow guest login
+  void _loginAsGuest() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Logged in as Guest!")),
+    );
 
-    // Navigate to HomeScreen on successful login
+    // Navigate to Home Page
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()), // Replaces LoginPage with HomeScreen
+      MaterialPageRoute(builder: (context) => HomeScreen()),
     );
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+      appBar: AppBar(title: Text("Study Flow Login")), // App bar title
+      body: Padding(
+        padding: EdgeInsets.all(16.0), // Add padding
+        child: Form(
+          key: _formKey, // Attach form key
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Login",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 30),
-
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
-                ),
+              // Email input field
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: "Email"),
                 keyboardType: TextInputType.emailAddress,
+                validator: (value) =>
+                    value!.isEmpty || !value.contains('@') ? "Enter a valid email" : null,
+              ),
+              // Password input field
+              TextFormField(
+                controller: passwordController,
+                decoration: InputDecoration(labelText: "Password"),
+                obscureText: true,
+                validator: (value) =>
+                    value!.isEmpty ? "Enter your password" : null,
               ),
               SizedBox(height: 20),
 
-              TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              // Conditional loading spinner or login button
+              _isLoading
+                  ? Center(child: CircularProgressIndicator()) // Show loading spinner
+                  : Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: _loginUser, // Call login function
+                          child: Text("Login"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            // Navigate to Registration Page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RegistrationPage()),
+                            );
+                          },
+                          child: Text("Don't have an account? Register here"),
+                        ),
+                        SizedBox(height: 10), // Add spacing
+                        
+                        // Guest Login Button
+                        TextButton(
+                          onPressed: _loginAsGuest, // Call guest login function
+                          child: Text("Continue as Guest"),
+                        ),
+                      ],
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                obscureText: !_isPasswordVisible,
-              ),
-              SizedBox(height: 30),
-
-              ElevatedButton(
-                onPressed: _login, // Calls _login function
-                child: Text("Login"),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  textStyle: TextStyle(fontSize: 18),
-                ),
-              ),
             ],
           ),
         ),
