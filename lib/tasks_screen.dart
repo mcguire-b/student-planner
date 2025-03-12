@@ -9,8 +9,19 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> tasks = [];
-  List<bool> isEditing = []; // Track which task is being edited
+  List<Map<String, dynamic>> tasks = [
+    // Hardcoded task for testing
+    {
+      'name': 'Finish Homework',
+      'category': 'School',
+      'startTime': '3:00 PM',
+      'endTime': '5:00 PM',
+      'priority': 'High',
+      'anticipatedTime': 120,
+    }
+  ];
+
+  List<bool> isEditing = [false]; // Hardcoded corresponding edit state
 
   void navigateToAddTaskScreen() async {
     final newTask = await Navigator.push<Map<String, dynamic>>(
@@ -74,19 +85,64 @@ class _TasksScreenState extends State<TasksScreen> {
                         margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey, width: 1),
+                          color: const Color.fromARGB(255, 244, 224, 255),
+                          border: Border.all(color: Colors.white, width: 1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Task Name (Always bold)
-                            editing
-                                ? TextField(controller: nameController)
-                                : Text(task['name'], style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            // Row with Task Title and Buttons
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Task Title (Left side)
+                                editing
+                                    ? Expanded(child: TextField(controller: nameController))
+                                    : Text(
+                                        task['name'],
+                                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                                      ),
+
+                                // Buttons (Right side)
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (editing) {
+                                            tasks[index] = {
+                                              'name': nameController.text,
+                                              'category': categoryController.text,
+                                              'startTime': startTimeController.text,
+                                              'endTime': endTimeController.text,
+                                              'priority': priorityController.text,
+                                              'anticipatedTime': int.tryParse(anticipatedTimeController.text) ?? 0,
+                                            };
+                                          }
+                                          isEditing[index] = !editing;
+                                        });
+                                      },
+                                      child: Text(editing ? 'Save' : 'Edit'), // Edit button first now
+                                    ),
+                                    SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          tasks.removeAt(index);
+                                          isEditing.removeAt(index);
+                                        });
+                                      },
+                                      child: Text('Remove'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
                             SizedBox(height: 8),
 
-                            // Category and Duration (With labels)
+                            // Category and Duration
                             Row(
                               children: [
                                 Expanded(
@@ -126,7 +182,7 @@ class _TasksScreenState extends State<TasksScreen> {
                             ),
                             SizedBox(height: 4),
 
-                            // Priority and Anticipated Time (With labels)
+                            // Priority and Anticipated Time
                             Row(
                               children: [
                                 Expanded(
@@ -151,42 +207,6 @@ class _TasksScreenState extends State<TasksScreen> {
                                           : Text('${task['anticipatedTime']} min'),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-
-                            // Edit and Remove Buttons
-                            Row(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      tasks.removeAt(index);
-                                      isEditing.removeAt(index);
-                                    });
-                                  },
-                                  child: Text('Remove Event'),
-                                ),
-                                SizedBox(width: 8),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (editing) {
-                                        // Save updates
-                                        tasks[index] = {
-                                          'name': nameController.text,
-                                          'category': categoryController.text,
-                                          'startTime': startTimeController.text,
-                                          'endTime': endTimeController.text,
-                                          'priority': priorityController.text,
-                                          'anticipatedTime': int.tryParse(anticipatedTimeController.text) ?? 0,
-                                        };
-                                      }
-                                      isEditing[index] = !editing; // Toggle edit mode
-                                    });
-                                  },
-                                  child: Text(editing ? 'Save' : 'Edit Event'),
                                 ),
                               ],
                             ),
