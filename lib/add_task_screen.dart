@@ -57,15 +57,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Add Task')),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: Container(
           decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 244, 224, 255),
             border: Border.all(color: Colors.white, width: 2), // Black border around the body
             borderRadius: BorderRadius.circular(10), // Rounded corners
           ),
           padding: const EdgeInsets.all(16.0), // Padding inside the border
           margin: const EdgeInsets.all(10.0), // Space around the container
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
