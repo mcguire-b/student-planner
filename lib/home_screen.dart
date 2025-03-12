@@ -22,13 +22,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Student Planner - Home'),
+        leading: IconButton(
+          icon: Icon(Icons.logout),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
+          },
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.list),
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => TasksScreen()),
               );
             },
           ),
@@ -53,15 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 calendarFormat = format;
               });
             },
-          ),
-                    ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => TasksScreen()),
-              );
-            },
-            child: Text("Go to Tasks"),
           ),
         ],
       ),
