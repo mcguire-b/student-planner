@@ -14,7 +14,9 @@ class _TasksScreenState extends State<TasksScreen> {
     {
       'name': 'Finish Homework',
       'category': 'School',
-      'startTime': '3:00 PM',
+      'startDate': '2025-03-20',
+      'startTime': '10:01 AM',
+      'endDate': '2025-03-21',
       'endTime': '5:00 PM',
       'priority': 'High',
       'anticipatedTime': 120,
@@ -22,7 +24,9 @@ class _TasksScreenState extends State<TasksScreen> {
     {
       'name': 'Project Meeting',
       'category': 'Work',
+      'startDate': '2025-03-22',
       'startTime': '10:00 AM',
+      'endDate': '2025-03-23',
       'endTime': '11:30 AM',
       'priority': 'Medium',
       'anticipatedTime': 90,
@@ -30,7 +34,9 @@ class _TasksScreenState extends State<TasksScreen> {
     {
       'name': 'Grocery Shopping',
       'category': 'Personal',
-      'startTime': '6:00 PM',
+      'startDate': '2025-03-24',
+      'startTime': '11:00 AM',
+      'endDate': '2025-03-25',
       'endTime': '7:00 PM',
       'priority': 'Low',
       'anticipatedTime': 60,
@@ -205,6 +211,10 @@ class _TasksScreenState extends State<TasksScreen> {
                           TextEditingController(text: task['startTime']);
                       TextEditingController endTimeController =
                           TextEditingController(text: task['endTime']);
+                      TextEditingController startDateController =
+                        TextEditingController(text: task['startDate'] ?? '');
+                    TextEditingController endDateController =
+                        TextEditingController(text: task['endDate'] ?? '');
                       TextEditingController priorityController =
                           TextEditingController(text: task['priority']);
                       TextEditingController anticipatedTimeController =
@@ -243,6 +253,8 @@ class _TasksScreenState extends State<TasksScreen> {
                                             tasks[index] = {
                                               'name': nameController.text,
                                               'category': categoryController.text,
+                                              'startDate': startDateController.text,
+                                              'endDate': endDateController.text,
                                               'startTime': startTimeController.text,
                                               'endTime': endTimeController.text,
                                               'priority': priorityController.text,
@@ -292,23 +304,51 @@ class _TasksScreenState extends State<TasksScreen> {
                                     children: [
                                       Text('Duration:', style: TextStyle(fontWeight: FontWeight.bold)),
                                       editing
-                                          ? Row(
+                                          ? Column(
                                               children: [
-                                                Expanded(
-                                                  child: TextField(controller: startTimeController),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller: startDateController,
+                                                        decoration: InputDecoration(labelText: 'Start Date'),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller: startTimeController,
+                                                        decoration: InputDecoration(labelText: 'Start Time'),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Text(' - '),
-                                                Expanded(
-                                                  child: TextField(controller: endTimeController),
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller: endDateController,
+                                                        decoration: InputDecoration(labelText: 'End Date'),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Expanded(
+                                                      child: TextField(
+                                                        controller: endTimeController,
+                                                        decoration: InputDecoration(labelText: 'End Time'),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             )
-                                          : Text('${task['startTime']} - ${task['endTime']}'),
+                                          : Text('${task['startTime']} ${task['startDate']} - ${task['endTime']} ${task['endDate']}'),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
+
                             SizedBox(height: 4),
 
                             // Priority and Anticipated Time

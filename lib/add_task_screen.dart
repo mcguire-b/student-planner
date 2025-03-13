@@ -10,11 +10,15 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController anticipatedTimeController = TextEditingController();
-  
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
+
   String category = 'Work'; // Default category
   String priority = 'Medium'; // Default priority
   TimeOfDay? startTime;
   TimeOfDay? endTime;
+  DateTime? startDate;
+  DateTime? endDate;
 
   // Function to pick a time
   Future<void> pickTime(bool isStartTime) async {
@@ -22,7 +26,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    
+
     if (pickedTime != null) {
       setState(() {
         if (isStartTime) {
@@ -34,16 +38,44 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  // Function to pick a date
+  Future<void> pickDate(bool isStartDate) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        String formattedDate = "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+
+        if (isStartDate) {
+          startDate = pickedDate;
+          startDateController.text = formattedDate;
+        } else {
+          endDate = pickedDate;
+          endDateController.text = formattedDate;
+        }
+      });
+    }
+  }
+
   // Function to submit event
   void submitTask() {
     if (nameController.text.isNotEmpty &&
         startTime != null &&
         endTime != null &&
+        startDate != null &&
+        endDate != null &&
         anticipatedTimeController.text.isNotEmpty) {
       Map<String, dynamic> newTask = {
         'name': nameController.text,
         'category': category,
         'priority': priority,
+        'startDate': "${startDate!.toLocal()}".split(' ')[0],
+        'endDate': "${endDate!.toLocal()}".split(' ')[0],
         'startTime': startTime!.format(context),
         'endTime': endTime!.format(context),
         'anticipatedTime': anticipatedTimeController.text,
@@ -62,11 +94,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Container(
           decoration: BoxDecoration(
             color: const Color.fromARGB(255, 244, 224, 255),
-            border: Border.all(color: Colors.white, width: 2), // Black border around the body
-            borderRadius: BorderRadius.circular(10), // Rounded corners
+            border: Border.all(color: Colors.white, width: 2),
+            borderRadius: BorderRadius.circular(10),
           ),
-          padding: const EdgeInsets.all(16.0), // Padding inside the border
-          margin: const EdgeInsets.all(10.0), // Space around the container
+          padding: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,23 +110,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
               SizedBox(height: 10),
 
-              // Category Dropdown
               DropdownButtonFormField<String>(
                 value: category,
                 decoration: InputDecoration(labelText: 'Event Category'),
-              items: ['Work', 'Personal', 'School', 'Other']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  category = value!;
-                });
-              },
-            ),
+                items: ['Work', 'Personal', 'School', 'Other']
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    category = value!;
+                  });
+                },
+              ),
 
               SizedBox(height: 10),
 
-              // Priority Dropdown
               DropdownButtonFormField<String>(
                 value: priority,
                 decoration: InputDecoration(labelText: 'Priority'),
@@ -110,34 +140,91 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
               SizedBox(height: 10),
 
-              // Start Time Picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(startTime == null ? 'Pick Start Time' : 'Start: ${startTime!.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () => pickTime(true),
-                    child: Text('Select'),
+              // Start Date Picker
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => pickDate(true),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: startDateController,
+                      decoration: InputDecoration(
+                        labelText: 'Start Date',
+                        suffixIcon: Icon(Icons.calendar_today),
+                      ),
+                      readOnly: true,
+                    ),
                   ),
-                ],
+                ),
+              ),
+
+              SizedBox(height: 10),
+
+              // End Date Picker
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => pickDate(false),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: endDateController,
+                      decoration: InputDecoration(
+                        labelText: 'End Date',
+                        suffixIcon: Icon(Icons.calendar_today),
+                      ),
+                      readOnly: true,
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 10),
+
+              // Start Time Picker
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => pickTime(true),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: TextEditingController(
+                        text: startTime != null ? startTime!.format(context) : '',
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Start Time',
+                        suffixIcon: Icon(Icons.access_time),
+                      ),
+                      readOnly: true,
+                    ),
+                  ),
+                ),
               ),
 
               SizedBox(height: 10),
 
               // End Time Picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(endTime == null ? 'Pick End Time' : 'End: ${endTime!.format(context)}'),
-                  ElevatedButton(
-                    onPressed: () => pickTime(false),
-                    child: Text('Select'),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => pickTime(false),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: TextEditingController(
+                        text: endTime != null ? endTime!.format(context) : '',
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'End Time',
+                        suffixIcon: Icon(Icons.access_time),
+                      ),
+                      readOnly: true,
+                    ),
                   ),
-                ],
+                ),
               ),
 
               SizedBox(height: 10),
 
+              // Anticipated Time Field
               TextField(
                 controller: anticipatedTimeController,
                 keyboardType: TextInputType.number,
