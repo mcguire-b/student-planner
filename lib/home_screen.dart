@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:planner/add_task_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'tasks_screen.dart'; // Import the TasksScreen class
 import 'login_page.dart';
+import 'Pomo_Menu_Classes/pomo_button.dart';
+import 'Pomo_Menu_Classes/timer_test_page.dart';
 
 
 // Home screen widget
@@ -65,6 +68,35 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+            floatingActionButton: PomoButton(
+            menuItems: [
+              PomoMenu(
+                value: 'nav: task page', label: 'Goto: Add Task',
+                icon: Icons.arrow_forward_sharp, 
+                onTap: () {
+                  Navigator.push(context,
+                   MaterialPageRoute(builder: (context) => AddTaskScreen()));
+                },
+              ),
+              // pomoMenu(
+              //   value: 'Nav: home page', label: 'Goto: Home Page',
+              //   icon: Icons.arrow_forward_sharp,
+              //   onTap: () {
+              //     Navigator.push(context, 
+              //       MaterialPageRoute(builder: (context) => HomeScreen()));
+              //   }
+              // ),
+              PomoMenu(
+                value: 'test 3', label: 'Goto: Timer Test Page',
+                icon: Icons.arrow_forward_sharp,
+                onTap: () {
+                  Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => TimerTestPage(title: '',)));
+                }
+              ),
+            ],
+          ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
