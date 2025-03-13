@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'add_task_screen.dart';
+import 'package:intl/intl.dart';
+
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -52,6 +54,8 @@ class _TasksScreenState extends State<TasksScreen> {
   // Sorting Variables
   bool _sortByPriorityHighToLow = true;
   bool _sortByCategoryAscending = true;
+  bool _sortByTimeAscending = true;
+
 
   List<String> categories = ['School', 'Work', 'Personal'];
   List<String> priorities = ['High', 'Medium', 'Low'];
@@ -80,14 +84,41 @@ class _TasksScreenState extends State<TasksScreen> {
     });
   }
 
-  void _sortTasksByCategory() {
-    setState(() {
-      tasks.sort((a, b) => _sortByCategoryAscending
-          ? a['category'].compareTo(b['category'])
-          : b['category'].compareTo(a['category']));
-      _sortByCategoryAscending = !_sortByCategoryAscending;
+void _sortTasksByCategory() {
+  setState(() {
+    tasks.sort((a, b) {
+      List<String> order = _sortByCategoryAscending ? ['School', 'Work', 'Personal'] : ['Personal', 'Work', 'School'];
+      return order.indexOf(a['category']).compareTo(order.indexOf(b['category']));
     });
-  }
+    _sortByCategoryAscending = !_sortByCategoryAscending;
+  });
+}
+
+void _sortTasksByAnticipatedTime() {
+  setState(() {
+    tasks.sort((a, b) {
+      return _sortByTimeAscending
+          ? a['anticipatedTime'].compareTo(b['anticipatedTime'])
+          : b['anticipatedTime'].compareTo(a['anticipatedTime']);
+    });
+    _sortByTimeAscending = !_sortByTimeAscending;
+  });
+}
+
+
+void _sortTasksByTime() {
+  setState(() {
+    tasks.sort((a, b) {
+      DateTime dateTimeA = DateFormat('yyyy-MM-dd hh:mm a').parse('${a['startDate']} ${a['startTime']}');
+      DateTime dateTimeB = DateFormat('yyyy-MM-dd hh:mm a').parse('${b['startDate']} ${b['startTime']}');
+
+      return _sortByTimeAscending
+          ? dateTimeA.compareTo(dateTimeB)
+          : dateTimeB.compareTo(dateTimeA);
+    });
+    _sortByTimeAscending = !_sortByTimeAscending;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -109,8 +140,8 @@ class _TasksScreenState extends State<TasksScreen> {
             icon: Icon(Icons.filter_list),
             onSelected: (String? selectedFilter) {
               setState(() {
-                if (categories.contains(selectedFilter) || selectedFilter == null) {
-                  _selectedCategory = selectedFilter;
+                if (categories.contains(selectedFilter) || selectedFilter == 'All Categories') {
+                  _selectedCategory = selectedFilter == 'All Categories' ? null : selectedFilter;
                 } else if (priorities.contains(selectedFilter) || selectedFilter == 'All Priorities') {
                   _selectedPriority = selectedFilter == 'All Priorities' ? null : selectedFilter;
                 }
@@ -118,12 +149,12 @@ class _TasksScreenState extends State<TasksScreen> {
             },
             itemBuilder: (context) => [
               PopupMenuItem(
-                value: null,
+                value: 'All Categories',
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("All Categories"),
-                    _selectedCategory == null ? Icon(Icons.check, color: Colors.blue) : SizedBox(),
+                    _selectedCategory == null ? Icon(Icons.check, color: Colors.purple) : SizedBox(),
                   ],
                 ),
               ),
@@ -133,7 +164,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(category),
-                        _selectedCategory == category ? Icon(Icons.check, color: Colors.blue) : SizedBox(),
+                        _selectedCategory == category ? Icon(Icons.check, color: Colors.purple) : SizedBox(),
                       ],
                     ),
                   )),
@@ -144,7 +175,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("All Priorities"),
-                    _selectedPriority == null ? Icon(Icons.check, color: Colors.blue) : SizedBox(),
+                    _selectedPriority == null ? Icon(Icons.check, color: Colors.purple) : SizedBox(),
                   ],
                 ),
               ),
@@ -154,7 +185,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(priority),
-                        _selectedPriority == priority ? Icon(Icons.check, color: Colors.blue) : SizedBox(),
+                        _selectedPriority == priority ? Icon(Icons.check, color: Colors.purple) : SizedBox(),
                       ],
                     ),
                   )),
@@ -171,10 +202,18 @@ class _TasksScreenState extends State<TasksScreen> {
               } else if (value == 'Category') {
                 _sortTasksByCategory();
               }
+              else if (value == 'Time') {
+                _sortTasksByTime();
+              }
+              else if (value == 'Anticipated Time') {
+                _sortTasksByAnticipatedTime();
+              }
             },
             itemBuilder: (context) => [
               PopupMenuItem(value: 'Priority', child: Text("Sort by Priority (${_sortByPriorityHighToLow ? 'High → Low' : 'Low → High'})")),
               PopupMenuItem(value: 'Category', child: Text("Sort by Category (${_sortByCategoryAscending ? 'A → Z' : 'Z → A'})")),
+              PopupMenuItem(value: 'Time', child: Text("Sort by Time (${_sortByTimeAscending ? 'Earliest → Latest' : 'Latest → Earliest'})")),
+              PopupMenuItem(value: 'Anticipated Time', child: Text("Sort by Anticipated Time (${_sortByTimeAscending ? 'Shortest → Longest' : 'Longest → Shortest'})")),
             ],
           ),
 
