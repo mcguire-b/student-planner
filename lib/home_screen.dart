@@ -65,6 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 calendarFormat = format;
               });
             },
+            calendarStyle: CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Colors.purple,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Color.fromRGBO(128, 0, 128, 0.5),
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
         ],
       ),
