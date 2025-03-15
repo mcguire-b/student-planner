@@ -83,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
         child: Form(
           key: _formKey, // Attach form key
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Email input field
               TextFormField(
