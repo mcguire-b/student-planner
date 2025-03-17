@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:planner/add_task_screen.dart';
+import 'package:planner/Screens/add_task_screen.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'tasks_screen.dart'; // Import the TasksScreen class
-import 'login_page.dart';
-import 'Pomo_Menu_Classes/pomo_button.dart';
-import 'Pomo_Menu_Classes/timer_test_page.dart';
+import '../login_page.dart';
+import '../Pomo_Menu_Classes/pomo_button.dart';
+import '../Pomo_Menu_Classes/timer_test_page.dart';
 
 
 // Home screen widget

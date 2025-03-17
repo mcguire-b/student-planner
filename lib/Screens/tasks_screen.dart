@@ -275,15 +275,23 @@ void _sortTasksByTime() {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 // Task Title (Left side)
-                                editing
-                                    ? Expanded(child: TextField(controller: nameController))
-                                    : Text(
-                                        task['name'],
-                                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                                      ),
+                                Expanded(
+                                  child: editing
+                                      ? TextField(controller: nameController)
+                                      : Flexible(
+                                          child: Text(
+                                            task['name'],
+                                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2, // Allows multi-line if necessary
+                                            softWrap: true,
+                                          ),
+                                        ),
+                                ),
 
                                 // Buttons (Right side)
                                 Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {

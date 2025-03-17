@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'file_manager.dart'; // Import FileManager for accessing stored user data
 import 'registration_page.dart'; // Import Registration Page
-import 'home_screen.dart'; // Import Home Screen
+import 'Screens/home_screen.dart'; // Import Home Screen
 
 
 class LoginPage extends StatefulWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:planner/Pomo_Menu_Classes/pomo_timer.dart';
 import 'pomo_button.dart';
-import '../home_screen.dart';
-import 'package:planner/add_task_screen.dart';
+import '../Screens/home_screen.dart';
+import 'package:planner/Screens/add_task_screen.dart';
 
 
 class TimerTestPage extends StatelessWidget {
