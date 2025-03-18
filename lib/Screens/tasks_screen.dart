@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:planner/file_manager.dart';
+
 
 
 class TasksScreen extends StatefulWidget {
@@ -11,41 +13,26 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> tasks = [
-    // Sample task for testing
-    {
-      'name': 'Finish Homework',
-      'category': 'School',
-      'startDate': '2025-03-20',
-      'startTime': '10:01 AM',
-      'endDate': '2025-03-21',
-      'endTime': '5:00 PM',
-      'priority': 'High',
-      'anticipatedTime': 120,
-    },
-    {
-      'name': 'Project Meeting',
-      'category': 'Work',
-      'startDate': '2025-03-22',
-      'startTime': '10:00 AM',
-      'endDate': '2025-03-23',
-      'endTime': '11:30 AM',
-      'priority': 'Medium',
-      'anticipatedTime': 90,
-    },
-    {
-      'name': 'Grocery Shopping',
-      'category': 'Personal',
-      'startDate': '2025-03-24',
-      'startTime': '11:00 AM',
-      'endDate': '2025-03-25',
-      'endTime': '7:00 PM',
-      'priority': 'Low',
-      'anticipatedTime': 60,
-    }
-  ];
+  List<Map<String, dynamic>> tasks = [];
 
-  List<bool> isEditing = [false, false, false]; // Corresponding edit states TO DO REMOVE FALSE
+  List<bool> isEditing = []; // Corresponding edit states TO DO REMOVE FALSE
+
+  @override
+void initState() {
+  super.initState();
+  _loadTasks();
+}
+
+Future<void> _loadTasks() async {
+  List<Map<String, dynamic>> loadedTasks = await FileManager.readTaskData();
+  setState(() {
+    tasks = List.from(loadedTasks);
+    isEditing = List.filled(tasks.length, false);
+  });
+}
+
+
+
 
   // Filtering Variables
   String? _selectedCategory;
@@ -62,15 +49,13 @@ class _TasksScreenState extends State<TasksScreen> {
 
   void navigateToAddTaskScreen() async {
     final newTask = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(builder: (context) => AddTaskScreen()),
+    context,
+    MaterialPageRoute(builder: (context) => AddTaskScreen()),
     );
 
     if (newTask != null) {
-      setState(() {
-        tasks.add(newTask);
-        isEditing.add(false);
-      });
+      await FileManager.writeTaskData(newTask);
+      _loadTasks(); // Reload tasks, which resets `isEditing`
     }
   }
 
@@ -238,6 +223,7 @@ void _sortTasksByTime() {
                   child: ListView.builder(
                     itemCount: filteredTasks.length,
                     itemBuilder: (context, index) {
+                      
                       final task = filteredTasks[index];
                       final bool editing = isEditing[index];
 
@@ -252,7 +238,7 @@ void _sortTasksByTime() {
                           TextEditingController(text: task['endTime']);
                       TextEditingController startDateController =
                         TextEditingController(text: task['startDate'] ?? '');
-                    TextEditingController endDateController =
+                      TextEditingController endDateController =
                         TextEditingController(text: task['endDate'] ?? '');
                       TextEditingController priorityController =
                           TextEditingController(text: task['priority']);
@@ -294,9 +280,9 @@ void _sortTasksByTime() {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          if (editing) {
+                                      onPressed: () async {
+                                        if (editing) {
+                                          setState(() {
                                             tasks[index] = {
                                               'name': nameController.text,
                                               'category': categoryController.text,
@@ -307,19 +293,34 @@ void _sortTasksByTime() {
                                               'priority': priorityController.text,
                                               'anticipatedTime': int.tryParse(anticipatedTimeController.text) ?? 0,
                                             };
-                                          }
+                                          });
+
+                                          await FileManager.writeUpdatedTasks(tasks);
+                                          _loadTasks();
+                                        }
+
+                                        setState(() {
                                           isEditing[index] = !editing;
                                         });
                                       },
+
                                       child: Text(editing ? 'Save' : 'Edit'),
                                     ),
                                     SizedBox(width: 8),
                                     ElevatedButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         setState(() {
-                                          tasks.removeAt(index);
-                                          isEditing.removeAt(index);
+                                          // Ensure tasks and isEditing are modifiable
+                                          tasks = List.from(tasks);
+                                          isEditing = List.from(isEditing);
+
+                                          if (index >= 0 && index < tasks.length) {
+                                            tasks.removeAt(index);
+                                            isEditing.removeAt(index);
+                                          }
                                         });
+
+                                        await FileManager.writeUpdatedTasks(tasks);
                                       },
                                       child: Text('Remove'),
                                     ),

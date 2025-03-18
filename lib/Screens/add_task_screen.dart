@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import 'home_screen.dart';
+import 'package:planner/file_manager.dart';
+
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -64,14 +66,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  // Function to submit event
-  void submitTask() {
+  void submitTask() async {
     if (nameController.text.isNotEmpty &&
         startTime != null &&
         endTime != null &&
         startDate != null &&
         endDate != null &&
         anticipatedTimeController.text.isNotEmpty) {
+          
       Map<String, dynamic> newTask = {
         'name': nameController.text,
         'category': category,
@@ -83,9 +85,33 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'anticipatedTime': anticipatedTimeController.text,
       };
 
-      Navigator.pop(context, newTask);
+      // Save task to file
+      bool success = await FileManager.writeTaskData(newTask);
+      if (success) {
+        print("Task saved successfully!");
+      } else {
+        print("Failed to save task.");
+      }
+
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Task saved successfully!")),
+        );
+        Navigator.pop(context, newTask); // Go back to the previous screen
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error saving task!")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Please fill in all fields!")),
+      );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
