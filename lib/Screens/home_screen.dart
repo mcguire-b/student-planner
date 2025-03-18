@@ -5,6 +5,11 @@ import 'tasks_screen.dart'; // Import the TasksScreen class
 import '../login_page.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import '../Pomo_Menu_Classes/timer_test_page.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import '../file_manager.dart'; // Import FileManager
+import 'package:intl/intl.dart';
+
+
 
 
 // Home screen widget
@@ -16,9 +21,52 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late TaskDataSource _taskDataSource = TaskDataSource([]);
   CalendarFormat calendarFormat = CalendarFormat.month;
   DateTime selectedDay = DateTime.now();
   DateTime focusedDay = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks(); // Load tasks when screen starts
+  }
+
+void _loadTasks() async {
+  List<Map<String, dynamic>> taskData = await FileManager.readTaskData();
+
+  // Convert task data into list of Appointment objects
+  List<Appointment> appointments = taskData.map((task) {
+    // Combine the start date and start time into a complete DateTime
+    DateTime startDateTime = _combineDateAndTime(task['startDate'], task['startTime']);
+    DateTime endDateTime = _combineDateAndTime(task['endDate'], task['endTime']);
+    
+    return Appointment(
+      startTime: startDateTime,
+      endTime: endDateTime,
+      subject: task["name"],  // Task name as the subject
+      color: Colors.blue,     // Set a color for the task
+    );
+  }).toList();
+
+  setState(() {
+    _taskDataSource = TaskDataSource(appointments);
+  });
+}
+
+// Helper function to combine date and time strings into DateTime
+DateTime _combineDateAndTime(String date, String time) {
+  // Combine date and time in the format 'yyyy-MM-dd h:mm a'
+  String dateTimeString = '$date $time';
+  
+  // Parse the combined string into a DateTime object
+  return DateFormat('yyyy-MM-dd h:mm a').parse(dateTimeString);
+}
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,37 +94,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          TableCalendar(
-            firstDay: DateTime.utc(2000, 1, 1),
-            lastDay: DateTime.utc(2100, 12, 31),
-            focusedDay: focusedDay,
-            calendarFormat: calendarFormat,
-            selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-            onDaySelected: (selected, focused) {
-              setState(() {
-                selectedDay = selected;
-                focusedDay = focused;
-              });
-            },
-            onFormatChanged: (format) {
-              setState(() {
-                calendarFormat = format;
-              });
-            },
-            calendarStyle: CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: Colors.purple,
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: Color.fromRGBO(128, 0, 128, 0.5),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
+      body: SfCalendar(
+        view: CalendarView.week, // Change to week view
+        firstDayOfWeek: 1, // Start week on Monday
+        timeSlotViewSettings: TimeSlotViewSettings(
+          startHour: 8, // Start time at 8 AM
+          endHour: 22, // End time at 10 PM
+          timeIntervalHeight: 50, // Adjust slot height
+        ),
+        dataSource: _taskDataSource, // Load tasks into the calendar
       ),
             floatingActionButton: PomoButton(
             menuItems: [
@@ -108,5 +134,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
+  }
+}
+   
+class TaskDataSource extends CalendarDataSource {
+  TaskDataSource(List<Appointment> source) {
+    appointments = source;
   }
 }
