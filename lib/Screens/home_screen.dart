@@ -35,17 +35,34 @@ class _HomeScreenState extends State<HomeScreen> {
 void _loadTasks() async {
   List<Map<String, dynamic>> taskData = await FileManager.readTaskData();
 
-  // Convert task data into list of Appointment objects
   List<Appointment> appointments = taskData.map((task) {
-    // Combine the start date and start time into a complete DateTime
     DateTime startDateTime = _combineDateAndTime(task['startDate'], task['startTime']);
     DateTime endDateTime = _combineDateAndTime(task['endDate'], task['endTime']);
-    
+
+    // 🟪 Assign color based on category
+    Color appointmentColor;
+    switch (task['category']?.toLowerCase()) {
+  case 'work':
+    appointmentColor = Color(0xFF9C27B0); // Rich Purple (bold and energizing)
+    break;
+  case 'personal':
+    appointmentColor = Color.fromARGB(255, 227, 132, 244); // Light Lavender Pink (soft & gentle)
+    break;
+  case 'school':
+    appointmentColor = Color(0xFF7E57C2); // Deep Lavender (focused, academic)
+    break;
+  case 'other':
+    appointmentColor = Color(0xFF9B5C8F); // Mauve-Rose (warm, unique)
+    break;
+  default:
+    appointmentColor = Color(0xFFCE93D8); // Fallback: pastel purple
+}
+
     return Appointment(
       startTime: startDateTime,
       endTime: endDateTime,
-      subject: task["name"],  // Task name as the subject
-      color: Colors.blue,     // Set a color for the task
+      subject: task["name"],
+      color: appointmentColor,
     );
   }).toList();
 
@@ -53,6 +70,7 @@ void _loadTasks() async {
     _taskDataSource = TaskDataSource(appointments);
   });
 }
+
 
 // Helper function to combine date and time strings into DateTime
 DateTime _combineDateAndTime(String date, String time) {
@@ -62,11 +80,6 @@ DateTime _combineDateAndTime(String date, String time) {
   // Parse the combined string into a DateTime object
   return DateFormat('yyyy-MM-dd h:mm a').parse(dateTimeString);
 }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +118,44 @@ DateTime _combineDateAndTime(String date, String time) {
           timeIntervalHeight: 50, // Adjust slot height
         ),
         dataSource: _taskDataSource, // Load tasks into the calendar
+          appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
+    final Appointment appointment = details.appointments.first;
+
+    // 🕒 Format time
+    final String timeRange = '${DateFormat.jm().format(appointment.startTime)} - ${DateFormat.jm().format(appointment.endTime)}';
+
+    return Container(
+      width: details.bounds.width,
+      height: details.bounds.height,
+      padding: EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: appointment.color,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            appointment.subject, // 📝 Title shown first
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            timeRange, // 🕒 Time range shown second
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ),
+    );
+  },
       ),
             floatingActionButton: PomoButton(
             menuItems: [
