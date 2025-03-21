@@ -89,7 +89,9 @@ DateTime _combineDateAndTime(String date, String time) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => TasksScreen()),
-              );
+              ).then((_) {
+                _loadTasks(); // Refresh the calendar when returning
+              });
             },
           ),
         ],
