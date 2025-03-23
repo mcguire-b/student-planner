@@ -32,28 +32,27 @@ class FileManager {
   // Takes a Map of user data as input
   static Future<bool> writeUserData(Map<String, dynamic> userData) async {
     try {
-      // Get the file for storing user data
-      final file = await _userFile;
+      List<Map<String, dynamic>> existingUsers = await readUserData();
 
-      // Read existing user data
-      List<Map<String, dynamic>> users = await readUserData();
+    // Check if user already exists by email
+    bool userExists = existingUsers.any((user) => user["email"] == userData["email"]);
 
-      // Check if a user with the same email already exists
-      // Prevents duplicate user registrations
-      if (users.any((user) => user['email'] == userData['email'])) {
-        print("User already exists!");
-        return false;
+    if (!userExists) {
+      existingUsers.add(userData);
+
+      if (kIsWeb) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('users', jsonEncode(existingUsers));
+      } else {
+        final file = await _userFile;
+        await file.writeAsString(jsonEncode(existingUsers));
       }
 
-       // Hash the password before storing
-      userData["password_hash"] = encodePassword(userData["password_hash"]);
-
-      // Add the new user to the list of existing users
-      users.add(userData);
-      // Write data safely using writeAsString
-      await file.writeAsString(jsonEncode(users), mode: FileMode.write);
-      print("User registered successfully.");
       return true;
+    } else {
+      print("User already exists!");
+      return false;
+    }
     } catch (e) {
       print("Error writing user data: $e");
       return false;
@@ -64,26 +63,25 @@ class FileManager {
   // Returns a list of user data maps
   static Future<List<Map<String, dynamic>>> readUserData() async {
     try {
-      // Get the user data file
+    if (kIsWeb) {
+      final prefs = await SharedPreferences.getInstance();
+      final String? usersJson = prefs.getString('users');
+      return usersJson != null
+          ? List<Map<String, dynamic>>.from(jsonDecode(usersJson))
+          : [];
+    } else {
       final file = await _userFile;
 
-      // Check if the file exists
       if (await file.exists()) {
-        // Read the file contents as a string
         String content = await file.readAsString();
-
-        // If the file is empty, return an empty list
         if (content.trim().isEmpty) {
           return [];
         }
-
-        // Decode the JSON string into a list of maps
-        // List<Map<String, dynamic>> ensures type safety
         return List<Map<String, dynamic>>.from(jsonDecode(content));
       }
 
-      // Return an empty list if the file doesn't exist
       return [];
+    }
     } catch (e) {
       // Handle any errors that occur during file reading
       print("Error reading user data: $e");
