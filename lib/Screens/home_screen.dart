@@ -205,7 +205,7 @@ Icon _getStatusIcon(String? status) {
               //   }
               // ),
               PomoMenu(
-                value: 'test 3', label: 'Goto: Timer Test Page',
+                value: 'nav: timer page', label: 'Goto: Timer Test Page',
                 icon: Icons.arrow_forward_sharp,
                 onTap: () {
                   Navigator.push(context,
