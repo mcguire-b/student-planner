@@ -3,8 +3,6 @@ import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 
-
-
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
 
@@ -292,6 +290,7 @@ void _sortTasksByTime() {
                                               'endTime': endTimeController.text,
                                               'priority': priorityController.text,
                                               'anticipatedTime': int.tryParse(anticipatedTimeController.text) ?? 0,
+                                              'status': tasks[index]['status'] ?? 'to-do',
                                             };
                                           });
 
@@ -427,6 +426,36 @@ void _sortTasksByTime() {
                                 ),
                               ],
                             ),
+                            // Status Dropdown
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Status:', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      editing
+                                          ? DropdownButton<String>(
+                                              value: task['status'] ?? 'to-do',
+                                              items: ['to-do', 'in progress', 'completed']
+                                                  .map((status) => DropdownMenuItem(
+                                                        value: status,
+                                                        child: Text(status),
+                                                      ))
+                                                  .toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  tasks[index]['status'] = value!;
+                                                });
+                                              },
+                                            )
+                                          : Text(task['status'] ?? 'to-do'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
                           ],
                         ),
                       );

@@ -62,6 +62,7 @@ void _loadTasks() async {
       startTime: startDateTime,
       endTime: endDateTime,
       subject: task["name"],
+      notes: task["status"], 
       color: appointmentColor,
     );
   }).toList();
@@ -79,6 +80,18 @@ DateTime _combineDateAndTime(String date, String time) {
   
   // Parse the combined string into a DateTime object
   return DateFormat('yyyy-MM-dd h:mm a').parse(dateTimeString);
+}
+
+Icon _getStatusIcon(String? status) {
+  switch (status?.toLowerCase()) {
+    case 'completed':
+      return Icon(Icons.check_circle, color: Colors.white, size: 14);
+    case 'in progress':
+      return Icon(Icons.access_time, color: Colors.white, size: 14);
+    case 'to-do':
+    default:
+      return Icon(Icons.push_pin, color: Colors.white, size: 14);
+  }
 }
 
   @override
@@ -115,43 +128,59 @@ DateTime _combineDateAndTime(String date, String time) {
         timeSlotViewSettings: TimeSlotViewSettings(
           startHour: 8, // Start time at 8 AM
           endHour: 22, // End time at 10 PM
-          timeIntervalHeight: 50, // Adjust slot height
+          timeIntervalHeight: 80, // Adjust slot height
         ),
         dataSource: _taskDataSource, // Load tasks into the calendar
           appointmentBuilder: (BuildContext context, CalendarAppointmentDetails details) {
-    final Appointment appointment = details.appointments.first;
+            final Appointment appointment = details.appointments.first;
 
-    // 🕒 Format time
-    final String timeRange = '${DateFormat.jm().format(appointment.startTime)} - ${DateFormat.jm().format(appointment.endTime)}';
+            // Format time
+            final String timeRange = '${DateFormat.jm().format(appointment.startTime)} - ${DateFormat.jm().format(appointment.endTime)}';
 
-    return Container(
-      width: details.bounds.width,
-      height: details.bounds.height,
-      padding: EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: appointment.color,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            appointment.subject, // 📝 Title shown first
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              overflow: TextOverflow.ellipsis,
+            return Container(
+              width: details.bounds.width,
+              height: details.bounds.height,
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: appointment.color,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    appointment.subject, // Title shown first
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    timeRange, // time range shown second
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 10,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Row(
+            children: [
+            _getStatusIcon(appointment.notes),
+            SizedBox(width: 4),
+            Text(
+              appointment.notes ?? '',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+              ),
             ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            timeRange, // 🕒 Time range shown second
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 10,
-            ),
-          ),
+          ],
+          
+        ),
         ],
       ),
     );
