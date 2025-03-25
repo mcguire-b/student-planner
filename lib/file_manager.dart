@@ -3,7 +3,7 @@ import 'dart:convert'; // Provides JSON encoding and decoding capabilities
 import 'package:path_provider/path_provider.dart'; // Helps find local file system paths
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:crypto/crypto.dart' as crypto; // provides hashing functions
 
 class FileManager {
   // Function to get the local application documents directory path
@@ -23,9 +23,11 @@ class FileManager {
     return File('$path/users.json');
   }
 
-  //hashing function using base64 encoding
+  //hashing function using sha-256 hashing algorithm
   static String encodePassword(String password) {
-    return base64Encode(utf8.encode(password)); // Encoding password
+    var bytes = utf8.encode(password);//convert the password to bytes
+    var digest = crypto.sha256.convert(bytes);//hash the password
+    return digest.toString();//return the hashed password
   }
 
   // Method to write new user data to the file
