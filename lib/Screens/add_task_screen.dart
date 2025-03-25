@@ -273,14 +273,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
       floatingActionButton: PomoButton(
             menuItems: [
-              // pomoMenu(
-              //   value: 'nav: task page', label: 'Goto: Add Task',
-              //   icon: Icons.arrow_forward_sharp, 
-              //   onTap: () {
-              //     Navigator.push(context,
-              //      MaterialPageRoute(builder: (context) => AddTaskScreen()));
-              //   },
-              // ),
+              PomoMenu(
+                value: 'Nav: Add task page', 
+                label: 'Quick Add Task',
+                icon: Icons.create_outlined, 
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddTaskScreen())
+                  );
+                },
+              ),
               PomoMenu(
                 value: 'test 2', label: 'Goto: Home Page',
                 icon: Icons.arrow_forward_sharp,
