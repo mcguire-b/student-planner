@@ -4,6 +4,8 @@ import 'package:path_provider/path_provider.dart'; // Helps find local file syst
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:crypto/crypto.dart' as crypto; // provides hashing functions
+import 'dart:math';//for generating random salt
+
 
 class FileManager {
   // Function to get the local application documents directory path
@@ -23,9 +25,17 @@ class FileManager {
     return File('$path/users.json');
   }
 
+  //Function to generate a random salt 
+  static String generateSalt([int length = 16]) {
+    final random = Random.secure();
+    final values = List<int>.generate(length, (i) => random.nextInt(256));
+    return base64Url.encode(values);
+  }
+
+
   //hashing function using sha-256 hashing algorithm
-  static String encodePassword(String password) {
-    var bytes = utf8.encode(password);//convert the password to bytes
+  static String encodePassword(String password, String salt) {
+    var bytes = utf8.encode(password + salt);//convert the password to bytes combine salt
     var digest = crypto.sha256.convert(bytes);//hash the password
     return digest.toString();//return the hashed password
   }
@@ -40,6 +50,12 @@ class FileManager {
     bool userExists = existingUsers.any((user) => user["email"] == userData["email"]);
 
     if (!userExists) {
+      //add salt and the password
+      String salt = generateSalt();
+      userData["salt"] = salt;
+      userData["password"] = encodePassword(userData["password"], salt);
+
+
       existingUsers.add(userData);
 
       if (kIsWeb) {
@@ -90,6 +106,22 @@ class FileManager {
       return [];
     }
   }
+
+  //method to verify user password during login
+  static Future<bool> verifyPassword(String email, String inputPassword) async {
+    List <Map<String, dynamic>> existingUsers = await readUserData();
+
+    final user = existingUsers.firstWhere((user) =>  user["email"] == email, orElse: () => {});
+    if(user.isEmpty) return false;
+
+    String salt = user["salt"];
+    String hashedInput = encodePassword(inputPassword, salt);
+
+    return hashedInput == user["password"];
+  }
+
+
+
   // Get task data file
   static Future<File> get _taskFile async {
     final path = await _localPath;
