@@ -28,7 +28,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       });
 
       // Encode the password before saving
-      final hashedPassword = FileManager.encodePassword(passwordController.text);
+      final hashedPassword = FileManager.encodePassword(passwordController.text, "saltValue"); // Replace "saltValue" with the actual second argument required
 
       // User data to be saved
       Map<String, dynamic> userData = {

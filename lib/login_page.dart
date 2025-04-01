@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
 
       List<Map<String, dynamic>> users = await FileManager.readUserData(); // Read stored users
       String email = emailController.text;
-      String password = FileManager.encodePassword(passwordController.text);
+      String password = FileManager.encodePassword(passwordController.text, emailController.text);
 
       print("Stored Users: $users"); // Debugging step
 
