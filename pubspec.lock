@@ -161,6 +161,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+<<<<<<< HEAD
   convert:
     dependency: transitive
     description:
@@ -171,6 +172,10 @@ packages:
     version: "3.1.2"
   crypto:
     dependency: transitive
+=======
+  crypto:
+    dependency: "direct main"
+>>>>>>> f066f46a6ac774bad7cc75c71a7ec3278569d757
     description:
       name: crypto
       sha256: "1e445881f28f22d6140f181e07737b22f1e099a5e1ff94b0af2f9e4a463f4855"
