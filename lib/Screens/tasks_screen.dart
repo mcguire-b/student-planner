@@ -589,7 +589,6 @@ class _TasksScreenState extends State<TasksScreen> {
         ],
       ),
       floatingActionButton: PomoButton(
-        //TODO Oooooooooooooooooooooooooooooooooooooo
         menuItems: [
           PomoMenu(
             value: 'nav: task page',

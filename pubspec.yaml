@@ -31,7 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   intl: ^0.20.2
+<<<<<<< HEAD
+  drift: ^2.26.0
+  drift_flutter: ^0.2.4
+=======
   crypto: ^3.0.0
+>>>>>>> f066f46a6ac774bad7cc75c71a7ec3278569d757
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -43,6 +48,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+<<<<<<< HEAD
+  drift_dev: ^2.26.0
+  build_runner: ^2.4.15
+
+=======
+>>>>>>> f066f46a6ac774bad7cc75c71a7ec3278569d757
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

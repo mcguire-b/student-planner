@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Import the login page
+//import 'Database/database.dart'; // may need this import for web support later on
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures plugins are ready
   runApp(StudentPlannerApp());
+
+  //final database = AppDatabase(); //may need to re-enable this line for web support later
 }
 
 // Root widget of the application

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import 'home_screen.dart';
 import 'package:planner/file_manager.dart';
+import '../Database/table_access.dart';
+import '../Database/database.dart';
 
 
 class AddTaskScreen extends StatefulWidget {
@@ -85,6 +87,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'anticipatedTime': anticipatedTimeController.text,
       };
 
+
       // Save task to file
       bool success = await FileManager.writeTaskData(newTask);
       if (success) {
@@ -111,6 +114,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+  //   void saveTask() {
+  //     final task = TaskTableCompanion(
+  //       eventName: Value(nameController.text),
+  //       //eventPriority: Value(int.parse(eventPriorityController.text)),
+  //       startDate: Value(startDate),
+  //       endDate: Value(endDate),
+  //       anticipatedTime: Value(int.parse(anticipatedTimeController.text)),
+  //   );
+  // }
+  
 
 
   @override
