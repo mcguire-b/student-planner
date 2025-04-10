@@ -4,6 +4,8 @@ import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
+import '../Database/db_tables.dart'; //for navigator database: db
+
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -46,7 +48,7 @@ class _TasksScreenState extends State<TasksScreen> {
   void navigateToAddTaskScreen() async {
     final newTask = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => AddTaskScreen()),
+      MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)),
     );
 
     if (newTask != null) {
@@ -597,7 +599,7 @@ class _TasksScreenState extends State<TasksScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddTaskScreen()),
+                MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)),
               );
             },
           ),

@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import 'home_screen.dart';
 import 'package:planner/file_manager.dart';
-import '../Database/table_access.dart';
-import '../Database/database.dart';
+import '../Database/database.dart' as db;
+import '../Database/db_tables.dart' as db;
+import 'package:drift/drift.dart' hide Column;
 
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({super.key});
+  //class field for database
+  final db.AppDatabase database;
+  
+  const AddTaskScreen({super.key, required this.database});
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -69,50 +73,112 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void submitTask() async {
+    //check for empty data fields
     if (nameController.text.isNotEmpty &&
-        startTime != null &&
-        endTime != null &&
-        startDate != null &&
-        endDate != null &&
-        anticipatedTimeController.text.isNotEmpty) {
-          
-      Map<String, dynamic> newTask = {
-        'name': nameController.text,
-        'category': category,
-        'priority': priority,
-        'startDate': "${startDate!.toLocal()}".split(' ')[0],
-        'endDate': "${endDate!.toLocal()}".split(' ')[0],
-        'startTime': startTime!.format(context),
-        'endTime': endTime!.format(context),
-        'anticipatedTime': anticipatedTimeController.text,
-      };
+      startTime != null &&
+      endTime != null &&
+      startDate != null &&
+      endDate != null &&
+      anticipatedTimeController.text.isNotEmpty) {
 
-
-      // Save task to file
-      bool success = await FileManager.writeTaskData(newTask);
-      if (success) {
-        print("Task saved successfully!");
-      } else {
-        print("Failed to save task.");
-      }
-
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Task saved successfully!")),
-        );
-        Navigator.pop(context, newTask); // Go back to the previous screen
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error saving task!")),
-        );
-      }
-    } else {
+    final parsedAnticipatedTime = int.tryParse(anticipatedTimeController.text);
+    if (parsedAnticipatedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields!")),
+        SnackBar(content: Text("Anticipated time must be a number!")),
+      );
+      return;
+    }
+
+    final task = db.TaskTableCompanion(
+      eventName: Value(nameController.text),
+      eventCategory: Value(category),
+      eventPriority: Value(priority),
+      startDate: Value(startDate!),
+      endDate: Value(endDate!),
+      startTime: Value(DateTime(
+        startDate!.year,
+        startDate!.month,
+        startDate!.day,
+        startTime!.hour,
+        startTime!.minute,
+      )),
+      endTime: Value(DateTime(
+        endDate!.year,
+        endDate!.month,
+        endDate!.day,
+        endTime!.hour,
+        endTime!.minute,
+      )),
+      anticipatedTime: Value(parsedAnticipatedTime),
+    );
+
+    try {
+      await widget.database.insertTask(task);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Task saved successfully!")),
+      );
+      Navigator.pop(context); // Optionally pass back the task
+    } catch (e) {
+      print("Error inserting task: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to save task.")),
       );
     }
+
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Please fill in all fields!")),
+    );
   }
+}
+
+
+  // //TODO : remove this method if drift method above is working
+  // void submitTask() async {
+  //   if (nameController.text.isNotEmpty &&
+  //       startTime != null &&
+  //       endTime != null &&
+  //       startDate != null &&
+  //       endDate != null &&
+  //       anticipatedTimeController.text.isNotEmpty) {
+          
+  //     Map<String, dynamic> newTask = {
+  //       'name': nameController.text,
+  //       'category': category,
+  //       'priority': priority,
+  //       'startDate': "${startDate!.toLocal()}".split(' ')[0],
+  //       'endDate': "${endDate!.toLocal()}".split(' ')[0],
+  //       'startTime': startTime!.format(context),
+  //       'endTime': endTime!.format(context),
+  //       'anticipatedTime': anticipatedTimeController.text,
+  //     };
+
+
+  //     // Save task to file
+  //     bool success = await FileManager.writeTaskData(newTask);
+  //     if (success) {
+  //       print("Task saved successfully!");
+  //     } else {
+  //       print("Failed to save task.");
+  //     }
+
+
+  //     if (success) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Task saved successfully!")),
+  //       );
+  //       Navigator.pop(context, newTask); // Go back to the previous screen
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text("Error saving task!")),
+  //       );
+  //     }
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text("Please fill in all fields!")),
+  //     );
+  //   }
+  // }
 
   //   void saveTask() {
   //     final task = TaskTableCompanion(
@@ -291,7 +357,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 label: 'Quick Add Task',
                 icon: Icons.create_outlined, 
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddTaskScreen())
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddTaskScreen(database: db.db))
                   );
                 },
               ),
