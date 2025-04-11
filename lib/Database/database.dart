@@ -25,10 +25,25 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 1;
 
+  
+
     //method to add task to TaskTable Database
   Future<int> insertTask(TaskTableCompanion task) {
     return db.into(db.taskTable).insert(task);
   }
+
+  Future<List<TaskTableData>> loadTasks() async {
+    // Fetch all tasks from the task table
+    return await select(taskTable).get();
+  }
+  
+  // Future<List<Task>> loadTasks() async {
+  //   final query = select(taskTable);
+  //   final taskList = await query.get();
+  //   return taskList;
+  // }
+
+  
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

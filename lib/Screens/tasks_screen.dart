@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:planner/Database/table_access.dart';
 import 'package:planner/Screens/home_screen.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
-import '../Database/db_tables.dart'; //for navigator database: db
+import '../Screens/add_task_screen.dart';
+import '../Database/database.dart';
+import '../Database/db_tables.dart';
+import 'package:drift/drift.dart' hide Column;
+import 'package:drift/wasm.dart';
 
 
 class TasksScreen extends StatefulWidget {
+  
   const TasksScreen({super.key});
 
   @override
@@ -15,23 +21,28 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> tasks = [];
-
-  List<bool> isEditing = []; // Corresponding edit states TO DO REMOVE FALSE
+  late final AppDatabase database;
 
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    // Use WebLazyDatabase for the web
+    //database = AppDatabase(WasmDatabase('tasks.db'));  // 'tasks.db' is your database name
   }
 
-  Future<void> _loadTasks() async {
-    List<Map<String, dynamic>> loadedTasks = await FileManager.readTaskData();
-    setState(() {
-      tasks = List.from(loadedTasks);
-      isEditing = List.filled(tasks.length, false);
-    });
+  Future<List<TaskTableData>> loadTasks() async {
+    final taskList = await database.loadTasks();
+    return taskList;
   }
+
+
+  // Future<void> _loadTasks() async {
+  //   List<Map<String, dynamic>> loadedTasks = await FileManager.readTaskData();
+  //   setState(() {
+  //     tasks = List.from(loadedTasks);
+  //     isEditing = List.filled(tasks.length, false);
+  //   });
+  // }
 
   // Filtering Variables
   String? _selectedCategory;
