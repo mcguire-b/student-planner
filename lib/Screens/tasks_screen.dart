@@ -86,15 +86,24 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   void _sortTasksByAnticipatedTime() {
-    setState(() {
-      tasks.sort((a, b) {
-        return _sortByTimeAscending
-            ? a['anticipatedTime'].compareTo(b['anticipatedTime'])
-            : b['anticipatedTime'].compareTo(a['anticipatedTime']);
-      });
-      _sortByTimeAscending = !_sortByTimeAscending;
+  setState(() {
+    tasks.sort((a, b) {
+      // Parse the hours and minutes for each task
+      int hoursA = int.tryParse(a['anticipatedHours'] ?? '0') ?? 0;
+      int minutesA = int.tryParse(a['anticipatedMinutes'] ?? '0') ?? 0;
+      int totalMinutesA = hoursA * 60 + minutesA; // Total minutes for task A
+
+      int hoursB = int.tryParse(b['anticipatedHours'] ?? '0') ?? 0;
+      int minutesB = int.tryParse(b['anticipatedMinutes'] ?? '0') ?? 0;
+      int totalMinutesB = hoursB * 60 + minutesB; // Total minutes for task B
+
+      return _sortByTimeAscending
+          ? totalMinutesA.compareTo(totalMinutesB)
+          : totalMinutesB.compareTo(totalMinutesA);
     });
-  }
+    _sortByTimeAscending = !_sortByTimeAscending;
+  });
+}
 
   void _sortTasksByTime() {
     setState(() {
@@ -130,7 +139,11 @@ class _TasksScreenState extends State<TasksScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('Tasks')),
+        backgroundColor: const Color.fromARGB(179, 254, 175, 255),
+        title: Center(child: Text(
+          'Tasks',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )),
         actions: [
           // Filter Dropdown Button
           PopupMenuButton<String>(
@@ -289,9 +302,13 @@ class _TasksScreenState extends State<TasksScreen> {
                         TextEditingController(text: task['endDate'] ?? '');
                     TextEditingController priorityController =
                         TextEditingController(text: task['priority']);
-                    TextEditingController anticipatedTimeController =
+                    TextEditingController anticipatedHoursController =
                         TextEditingController(
-                          text: task['anticipatedTime'].toString(),
+                          text: task['anticipatedHours'].toString(),
+                        );
+                    TextEditingController anticipatedMinutesController =
+                        TextEditingController(
+                          text: task['anticipatedMinutes'].toString(),
                         );
 
                     return Container(
@@ -347,9 +364,15 @@ class _TasksScreenState extends State<TasksScreen> {
                                                 startTimeController.text,
                                             'endTime': endTimeController.text,
                                             'priority': priorityController.text,
-                                            'anticipatedTime':
+                                            'anticipatedHours':
                                                 int.tryParse(
-                                                  anticipatedTimeController
+                                                  anticipatedHoursController
+                                                      .text,
+                                                ) ??
+                                                0,
+                                            'anticipatedMinutes':
+                                                int.tryParse(
+                                                  anticipatedMinutesController
                                                       .text,
                                                 ) ??
                                                 0,
@@ -509,8 +532,8 @@ class _TasksScreenState extends State<TasksScreen> {
                                     ),
                                     editing
                                         ? TextField(
-                                          controller: priorityController,
-                                        )
+                                            controller: priorityController,
+                                          )
                                         : Text(task['priority']),
                                   ],
                                 ),
@@ -527,17 +550,37 @@ class _TasksScreenState extends State<TasksScreen> {
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: anticipatedTimeController,
-                                        )
+                                        ? Row(
+                                            children: [
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: anticipatedHoursController,
+                                                  keyboardType: TextInputType.number,
+                                                  decoration: InputDecoration(labelText: 'Hours'),
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: anticipatedMinutesController,
+                                                  keyboardType: TextInputType.number,
+                                                  decoration: InputDecoration(labelText: 'Minutes'),
+                                                ),
+                                              ),
+                                            ],
+                                          )
                                         : Text(
-                                          '${task['anticipatedTime']} min',
-                                        ),
+                                            // Check if anticipatedHours and anticipatedMinutes are not empty and display them
+                                            task['anticipatedHours'] != null && task['anticipatedMinutes'] != null
+                                                ? '${task['anticipatedHours']}h ${task['anticipatedMinutes']}m'
+                                                : '0h 0m', // Fallback value if they're not available
+                                          ),
                                   ],
                                 ),
                               ),
                             ],
                           ),
+                          
                           // Status Dropdown
                           Row(
                             children: [

@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
             task['endTime'],
           );
 
-          // 🟪 Assign color based on category
+          // Assign color based on category
           Color appointmentColor;
           switch (task['category']?.toLowerCase()) {
             case 'work':
@@ -110,7 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Student Planner - Home'),
+        backgroundColor: const Color.fromARGB(179, 254, 175, 255),
+        title: Text(
+          'Student Planner - Home',
+          style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         leading: IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {

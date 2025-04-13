@@ -13,7 +13,8 @@ class AddTaskScreen extends StatefulWidget {
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController anticipatedTimeController = TextEditingController();
+  final TextEditingController anticipatedHoursController = TextEditingController();
+  final TextEditingController anticipatedMinutesController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
 
@@ -38,7 +39,30 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         } else {
           endTime = pickedTime;
         }
+
+        // Calculate anticipated time after both are picked
+        if (startTime != null && endTime != null) {
+          calculateAnticipatedTime();
+        }
       });
+    }
+  }
+
+  void calculateAnticipatedTime() {
+    if (startTime != null && endTime != null) {
+      final start = Duration(hours: startTime!.hour, minutes: startTime!.minute);
+      final end = Duration(hours: endTime!.hour, minutes: endTime!.minute);
+
+      final diff = end - start;
+
+      // If the time goes past midnight, adjust
+      final adjustedDiff = diff.isNegative ? diff + Duration(days: 1) : diff;
+
+      final hours = adjustedDiff.inHours;
+      final minutes = adjustedDiff.inMinutes % 60;
+
+      anticipatedHoursController.text = hours.toString();
+      anticipatedMinutesController.text = minutes.toString();
     }
   }
 
@@ -72,7 +96,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         endTime != null &&
         startDate != null &&
         endDate != null &&
-        anticipatedTimeController.text.isNotEmpty) {
+        anticipatedHoursController.text.isNotEmpty || anticipatedMinutesController.text.isNotEmpty) {
           
       Map<String, dynamic> newTask = {
         'name': nameController.text,
@@ -82,7 +106,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         'endDate': "${endDate!.toLocal()}".split(' ')[0],
         'startTime': startTime!.format(context),
         'endTime': endTime!.format(context),
-        'anticipatedTime': anticipatedTimeController.text,
+        'anticipatedHours': anticipatedHoursController.text,
+        'anticipatedMinutes': anticipatedMinutesController.text,
       };
 
       // Save task to file
@@ -111,12 +136,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Task')),
+      appBar: AppBar(
+        title: Text(
+          'Add Task',
+          style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        backgroundColor: const Color.fromARGB(179, 254, 175, 255),
+      ),
       body: Align(
         alignment: Alignment.topCenter,
         child: Container(
@@ -252,11 +281,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
               SizedBox(height: 10),
 
-              // Anticipated Time Field
-              TextField(
-                controller: anticipatedTimeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Anticipated Time (in minutes)'),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: anticipatedHoursController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: 'Anticipated Hours'),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: anticipatedMinutesController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: 'Anticipated Minutes'),
+                    ),
+                  ),
+                ],
               ),
 
               SizedBox(height: 20),
