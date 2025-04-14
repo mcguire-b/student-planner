@@ -8,7 +8,6 @@ import '../Pomo_Menu_Classes/timer_test_page.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../file_manager.dart'; // Import FileManager
 import 'package:intl/intl.dart';
-import '../Database/db_tables.dart';
 
 // Home screen widget
 class HomeScreen extends StatefulWidget {
@@ -208,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)),
+                MaterialPageRoute(builder: (context) => AddTaskScreen()),
               );
             },
           ),

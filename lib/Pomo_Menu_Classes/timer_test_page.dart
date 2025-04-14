@@ -4,8 +4,6 @@ import 'pomo_button.dart';
 import '../Screens/home_screen.dart';
 import 'package:planner/Screens/add_task_screen.dart';
 
-import '../Database/db_tables.dart'; //for navigator database: db
-
 
 
 class TimerTestPage extends StatelessWidget {
@@ -36,7 +34,7 @@ class TimerTestPage extends StatelessWidget {
               icon: Icons.arrow_forward_sharp, 
               onTap: () {
                 Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)));
+                  MaterialPageRoute(builder: (context) => AddTaskScreen()));
               },
             ),
             PomoMenu(

@@ -4,7 +4,7 @@ import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
-import '../Database/db_tables.dart'; //for navigator database: db
+import '../IndexDB/task.dart';
 
 
 class TasksScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   List<Map<String, dynamic>> tasks = [];
 
-  List<bool> isEditing = []; // Corresponding edit states TO DO REMOVE FALSE
+  List<bool> isEditing = []; // Corresponding edit states TODO REMOVE FALSE
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _loadTasks() async {
-    List<Map<String, dynamic>> loadedTasks = await FileManager.readTaskData();
+    List<Map<String, dynamic>> loadedTasks = await TaskStorage.loadTasks();
     setState(() {
       tasks = List.from(loadedTasks);
       isEditing = List.filled(tasks.length, false);
@@ -48,7 +48,7 @@ class _TasksScreenState extends State<TasksScreen> {
   void navigateToAddTaskScreen() async {
     final newTask = await Navigator.push<Map<String, dynamic>>(
       context,
-      MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)),
+      MaterialPageRoute(builder: (context) => AddTaskScreen()),
     );
 
     if (newTask != null) {
@@ -599,7 +599,7 @@ class _TasksScreenState extends State<TasksScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddTaskScreen(database: db)),
+                MaterialPageRoute(builder: (context) => AddTaskScreen()),
               );
             },
           ),
