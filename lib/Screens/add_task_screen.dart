@@ -95,7 +95,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       );
       try {
       // //for debug print statements TODO remove from code once its all working
-      // String taskID = newTask.idNum;  
+      // String taskID = newTask.id;  
       // //debug print statements
       // print("Saving task: ${newTask.taskName}, Start: ${newTask.startDate}, AntTime: ${newTask.anticipatedTime}"); 
       // print("End: ${newTask.endDate}, STime: ${newTask.startTime}, ETime: ${newTask.endTime}");

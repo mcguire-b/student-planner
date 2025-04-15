@@ -117,4 +117,27 @@ class IdbFile {
     await store.delete(_filePath);
     await txn.completed;
   }
+
+  ///Pulls all task objects from the database
+  static Future<List<Map<String, dynamic>>> getAllTasks() async {
+    final idbFactory = getIdbFactory();
+    if (idbFactory == null) {
+      throw Exception("IndexedDB is not supported on this platform");
+    }
+    final db = await idbFactory.open(
+      _dbName, 
+      version: _version,
+      onUpgradeNeeded: (e) {
+        final db = e.database;
+        if (!db.objectStoreNames.contains(_objectStoreName)) {
+          db.createObjectStore(_objectStoreName, keyPath: _propNameFilePath);
+        }
+      },
+    );
+    final txn = db.transaction(_objectStoreName, idbModeReadOnly);
+    final store = txn.objectStore(_objectStoreName);
+    final allObjects = await store.getAll();
+    await txn.completed;
+    return allObjects.cast<Map<String, dynamic>>();
+  } 
 }
