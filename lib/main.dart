@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Import the login page
-//import 'Database/database.dart'; // may need this import for web support later on
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures plugins are ready

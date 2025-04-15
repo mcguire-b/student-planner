@@ -6,8 +6,8 @@ import '../login_page.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import '../Pomo_Menu_Classes/timer_test_page.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import '../file_manager.dart'; // Import FileManager
 import 'package:intl/intl.dart';
+import 'package:planner/IndexDB/task_manage.dart';
 
 // Home screen widget
 class HomeScreen extends StatefulWidget {
@@ -30,22 +30,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadTasks() async {
-    List<Map<String, dynamic>> taskData = await FileManager.readTaskData();
+    List<Map<String, dynamic>> taskData = await ManageTasks.loadTasks();
 
     List<Appointment> appointments =
         taskData.map((task) {
-          DateTime startDateTime = _combineDateAndTime(
-            task['startDate'],
-            task['startTime'],
-          );
-          DateTime endDateTime = _combineDateAndTime(
-            task['endDate'],
-            task['endTime'],
-          );
+          DateTime startDateTime = _combineDateAndTime(task['startDate'], task['startTime'],);
+          DateTime endDateTime = _combineDateAndTime(task['endDate'],task['endTime'],);
+          //print('Home_Screen _loadTasks(): startDateTime: $startDateTime, endDateTime: $endDateTime');
 
           // 🟪 Assign color based on category
           Color appointmentColor;
-          switch (task['category']?.toLowerCase()) {
+          switch (task['taskCategory']?.toLowerCase()) {
             case 'work':
               appointmentColor = Color(
                 0xFF9C27B0,
@@ -74,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Appointment(
             startTime: startDateTime,
             endTime: endDateTime,
-            subject: task["name"],
+            subject: task['taskName'],
             notes: task["status"],
             color: appointmentColor,
           );
@@ -86,12 +81,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Helper function to combine date and time strings into DateTime
-  DateTime _combineDateAndTime(String date, String time) {
+  //TODO remove debug print statements
+  DateTime _combineDateAndTime(String inputDate, String inputTime) {
     // Combine date and time in the format 'yyyy-MM-dd h:mm a'
-    String dateTimeString = '$date $time';
+    //2025-04-15T00:00:00.000 16:49 is format of inputeDate+inputeTime
+    //create a full string with date and time
+    //print("InputDate: $inputDate, InputTime: $inputTime");
+    String input = '$inputDate$inputTime';
+    //debug print
+    //print("_CombineDateAndTime Method Input: $input");
+    //get location of the T in input
+    int tIndex = input.indexOf('T');
 
-    // Parse the combined string into a DateTime object
-    return DateFormat('yyyy-MM-dd h:mm a').parse(dateTimeString);
+    String date = input.substring(0, tIndex);
+    String time = input.substring(input.length - 5); 
+
+    String formatted = '${date}T$time:00'; // "2025-04-15T15:43"
+    //print('combineDateAndTime Method formatted: $formatted');
+    DateTime parsed = DateTime.parse(formatted);
+   // print('combineDateAndTime Method Parsed DateTime: $parsed');
+
+    return parsed;
   }
 
   Icon _getStatusIcon(String? status) {
@@ -148,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
           CalendarAppointmentDetails details,
         ) {
           final Appointment appointment = details.appointments.first;
-
           // Format time
           final String timeRange =
               '${DateFormat.jm().format(appointment.startTime)} - ${DateFormat.jm().format(appointment.endTime)}';
@@ -161,40 +170,43 @@ class _HomeScreenState extends State<HomeScreen> {
               color: appointment.color,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  appointment.subject, // Title shown first
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  timeRange, // time range shown second
-                  style: TextStyle(color: Colors.white70, fontSize: 10),
-                ),
-                SizedBox(height: 2),
-                Row(
-                  children: [
-                    _getStatusIcon(appointment.notes),
-                    SizedBox(width: 4),
-                    Text(
-                      appointment.notes ?? '',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontStyle: FontStyle.italic,
-                      ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    appointment.subject, // Title shown first
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    timeRange, // time range shown second
+                    style: TextStyle(color: Colors.white70, fontSize: 10),
+                  ),
+                  SizedBox(height: 2),
+
+                  Row(
+                    children: [
+                      _getStatusIcon(appointment.notes),
+                      SizedBox(width: 4),
+                      Text(
+                        appointment.notes ?? '',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
           );
         },
       ),

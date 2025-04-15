@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter/scheduler.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import 'home_screen.dart';
-import 'package:planner/file_manager.dart';
-import '../Database/table_access.dart';
-import '../Database/database.dart';
+//import '../IndexDB/task.dart';
+import '../IndexDB/task_manage.dart';
+
 
 
 class AddTaskScreen extends StatefulWidget {
+  //class field for database
+
+  
   const AddTaskScreen({super.key});
 
   @override
@@ -19,8 +23,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
 
-  String category = 'Work'; // Default category
-  String priority = 'Medium'; // Default priority
+  String taskCategory = 'Work'; // Default category
+  String taskPriority = 'Medium'; // Default priority
   TimeOfDay? startTime;
   TimeOfDay? endTime;
   DateTime? startDate;
@@ -68,61 +72,77 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
+    // Index DB implementation of submitTask function
   void submitTask() async {
+    // Check data fields are not empty 
     if (nameController.text.isNotEmpty &&
         startTime != null &&
         endTime != null &&
         startDate != null &&
         endDate != null &&
         anticipatedTimeController.text.isNotEmpty) {
-          
-      Map<String, dynamic> newTask = {
-        'name': nameController.text,
-        'category': category,
-        'priority': priority,
-        'startDate': "${startDate!.toLocal()}".split(' ')[0],
-        'endDate': "${endDate!.toLocal()}".split(' ')[0],
-        'startTime': startTime!.format(context),
-        'endTime': endTime!.format(context),
-        'anticipatedTime': anticipatedTimeController.text,
-      };
+      
+      // Map user input to new task object
+      final newTask = Task(
+          taskName: nameController.text, 
+          taskCategory: taskCategory, 
+          taskPriority: taskPriority, 
+          startDate: startDate!, 
+          endDate: endDate!, 
+          startTime: startTime!, 
+          endTime: endTime!, 
+          anticipatedTime: int.parse(anticipatedTimeController.text)
+      );
+      try {
+      // //for debug print statements TODO remove from code once its all working
+      // String taskID = newTask.id;  
+      // //debug print statements
+      // print("Saving task: ${newTask.taskName}, Start: ${newTask.startDate}, AntTime: ${newTask.anticipatedTime}"); 
+      // print("End: ${newTask.endDate}, STime: ${newTask.startTime}, ETime: ${newTask.endTime}");
+      // print("Cat: ${newTask.taskCategory}, Prior: ${newTask.taskPriority}, ID: $taskID");
+
+      // TODO Save task to Indexed DB
+      //convert a task into a Task map
+      Map<String, dynamic> mapOfTask = Task.taskToMap(newTask);
+      //save task map to database file
+      await ManageTasks.saveTask(mapOfTask); 
 
 
-      // Save task to file
-      bool success = await FileManager.writeTaskData(newTask);
-      if (success) {
-        print("Task saved successfully!");
-      } else {
-        print("Failed to save task.");
-      }
-
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Task saved successfully!")),
-        );
-        Navigator.pop(context, newTask); // Go back to the previous screen
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error saving task!")),
-        );
-      }
-    } else {
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Please fill in all fields!")),
+        SnackBar(content: Text('Task saved successfully!')),
+      ); 
+      // Reset all form fields
+      setState(() {
+        nameController.clear();
+        anticipatedTimeController.clear();
+        startDateController.clear();
+        endDateController.clear();
+        taskCategory = 'Work'; // Reset to default
+        taskPriority = 'Medium'; // Reset to default
+        startTime = null;
+        endTime = null;
+        startDate = null;
+        endDate = null;
+      });
+      // Optionally return to previous screen
+      Navigator.pop(context);
+    } catch (e) {
+      // Show error message if something went wrong
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error saving event: ${e.toString()}')),
       );
     }
-  }
+    }// end if statement
+    else {
+      // Show message if form is incomplete
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+    } //end else
+  }//end submitTask()
 
-  //   void saveTask() {
-  //     final task = TaskTableCompanion(
-  //       eventName: Value(nameController.text),
-  //       //eventPriority: Value(int.parse(eventPriorityController.text)),
-  //       startDate: Value(startDate),
-  //       endDate: Value(endDate),
-  //       anticipatedTime: Value(int.parse(anticipatedTimeController.text)),
-  //   );
-  // }
+    
   
 
 
@@ -152,14 +172,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               SizedBox(height: 10),
 
               DropdownButtonFormField<String>(
-                value: category,
+                value: taskCategory,
                 decoration: InputDecoration(labelText: 'Event Category'),
                 items: ['Work', 'Personal', 'School', 'Other']
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    category = value!;
+                    taskCategory = value!;
                   });
                 },
               ),
@@ -167,14 +187,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               SizedBox(height: 10),
 
               DropdownButtonFormField<String>(
-                value: priority,
+                value: taskPriority,
                 decoration: InputDecoration(labelText: 'Priority'),
                 items: ['High', 'Medium', 'Low']
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    priority = value!;
+                    taskPriority = value!;
                   });
                 },
               ),

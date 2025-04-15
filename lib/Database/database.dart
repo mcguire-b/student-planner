@@ -14,13 +14,21 @@ part 'database.g.dart';
 
 @DriftDatabase(tables: [TaskTable])
 class AppDatabase extends _$AppDatabase {
+  
   // After generating code, this class needs to define a `schemaVersion` getter
   // and a constructor telling drift where the database should be stored.
   // These are described in the getting started guide: https://drift.simonbinder.eu/setup/
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
+  
+
   @override
   int get schemaVersion => 1;
+
+    //method to add task to TaskTable Database
+  Future<int> insertTask(TaskTableCompanion task) {
+    return db.into(db.taskTable).insert(task);
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(

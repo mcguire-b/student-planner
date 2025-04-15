@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:planner/IndexDB/task_manage.dart';
 import 'package:planner/Screens/home_screen.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
+//import '../IndexDB/task.dart';
+
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -13,9 +16,10 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  List<Map<String, dynamic>> tasks = [];
+  //List<Map<String, dynamic>> tasks = [];
+  List<Task> tasks = [];
 
-  List<bool> isEditing = []; // Corresponding edit states TO DO REMOVE FALSE
+  List<bool> isEditing = []; // Corresponding edit states TODO REMOVE FALSE
 
   @override
   void initState() {
@@ -24,9 +28,12 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _loadTasks() async {
-    List<Map<String, dynamic>> loadedTasks = await FileManager.readTaskData();
+    List<Map<String, dynamic>> loadedTasks = await ManageTasks.loadTasks();
     setState(() {
-      tasks = List.from(loadedTasks);
+      //tasks = loadedTasks.map((map) => Task.fromMap(map)).toList();
+      tasks = loadedTasks.map<Task>((map) => Task.fromMap(map)).toList();
+      print('Task Screen loaded Tasks $loadedTasks');
+      print('Task Screen: tasks: $tasks');
       isEditing = List.filled(tasks.length, false);
     });
   }
@@ -58,13 +65,12 @@ class _TasksScreenState extends State<TasksScreen> {
   void _sortTasksByPriority() {
     setState(() {
       tasks.sort((a, b) {
-        List<String> order =
-            _sortByPriorityHighToLow
+        List<String> order =_sortByPriorityHighToLow
                 ? ['High', 'Medium', 'Low']
                 : ['Low', 'Medium', 'High'];
         return order
-            .indexOf(a['priority'])
-            .compareTo(order.indexOf(b['priority']));
+            .indexOf(a.taskPriority)
+            .compareTo(order.indexOf(b.taskPriority));
       });
       _sortByPriorityHighToLow = !_sortByPriorityHighToLow;
     });
@@ -78,8 +84,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 ? ['School', 'Work', 'Personal']
                 : ['Personal', 'Work', 'School'];
         return order
-            .indexOf(a['category'])
-            .compareTo(order.indexOf(b['category']));
+            .indexOf(a.taskCategory)
+            .compareTo(order.indexOf(b.taskCategory));
       });
       _sortByCategoryAscending = !_sortByCategoryAscending;
     });
@@ -89,8 +95,8 @@ class _TasksScreenState extends State<TasksScreen> {
     setState(() {
       tasks.sort((a, b) {
         return _sortByTimeAscending
-            ? a['anticipatedTime'].compareTo(b['anticipatedTime'])
-            : b['anticipatedTime'].compareTo(a['anticipatedTime']);
+            ? a.anticipatedTime.compareTo(b.anticipatedTime)
+            : b.anticipatedTime.compareTo(a.anticipatedTime);
       });
       _sortByTimeAscending = !_sortByTimeAscending;
     });
@@ -101,10 +107,10 @@ class _TasksScreenState extends State<TasksScreen> {
       tasks.sort((a, b) {
         DateTime dateTimeA = DateFormat(
           'yyyy-MM-dd hh:mm a',
-        ).parse('${a['startDate']} ${a['startTime']}');
+        ).parse('${a.startDate} ${a.startTime}');
         DateTime dateTimeB = DateFormat(
           'yyyy-MM-dd hh:mm a',
-        ).parse('${b['startDate']} ${b['startTime']}');
+        ).parse('${b.startDate} ${b.startTime}');
 
         return _sortByTimeAscending
             ? dateTimeA.compareTo(dateTimeB)
@@ -121,10 +127,10 @@ class _TasksScreenState extends State<TasksScreen> {
         tasks.where((task) {
           final matchesCategory =
               _selectedCategory == null ||
-              task['category'] == _selectedCategory;
+              task.taskCategory == _selectedCategory;
           final matchesPriority =
               _selectedPriority == null ||
-              task['priority'] == _selectedPriority;
+              task.taskPriority == _selectedPriority;
           return matchesCategory && matchesPriority;
         }).toList();
 
@@ -275,23 +281,25 @@ class _TasksScreenState extends State<TasksScreen> {
                     final bool editing = isEditing[index];
 
                     // Controllers for inline editing
+                    //TODO .toString() might not work here but, 
+                    //i need to clear the error to test other things
                     TextEditingController nameController =
-                        TextEditingController(text: task['name']);
+                        TextEditingController(text: task.taskName);
                     TextEditingController categoryController =
-                        TextEditingController(text: task['category']);
+                        TextEditingController(text: task.taskCategory);
                     TextEditingController startTimeController =
-                        TextEditingController(text: task['startTime']);
+                        TextEditingController(text: task.startTime.toString());
                     TextEditingController endTimeController =
-                        TextEditingController(text: task['endTime']);
+                        TextEditingController(text: task.endTime.toString());
                     TextEditingController startDateController =
-                        TextEditingController(text: task['startDate'] ?? '');
+                        TextEditingController(text: task.startDate.toString());
                     TextEditingController endDateController =
-                        TextEditingController(text: task['endDate'] ?? '');
+                        TextEditingController(text: task.endDate.toString());
                     TextEditingController priorityController =
-                        TextEditingController(text: task['priority']);
+                        TextEditingController(text: task.taskPriority);
                     TextEditingController anticipatedTimeController =
                         TextEditingController(
-                          text: task['anticipatedTime'].toString(),
+                          text: task.anticipatedTime.toString(),
                         );
 
                     return Container(
@@ -305,7 +313,7 @@ class _TasksScreenState extends State<TasksScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Row with Task Title and Buttons
+                          //Row with Task Title and Buttons
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -316,7 +324,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                         ? TextField(controller: nameController)
                                         : Flexible(
                                           child: Text(
-                                            task['name'],
+                                            task.taskName,
                                             style: TextStyle(
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -328,78 +336,76 @@ class _TasksScreenState extends State<TasksScreen> {
                                           ),
                                         ),
                               ),
-
+                              //TODO Fix whatever this function is.....
                               // Buttons (Right side)
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      if (editing) {
-                                        setState(() {
-                                          tasks[index] = {
-                                            'name': nameController.text,
-                                            'category': categoryController.text,
-                                            'startDate':
-                                                startDateController.text,
-                                            'endDate': endDateController.text,
-                                            'startTime':
-                                                startTimeController.text,
-                                            'endTime': endTimeController.text,
-                                            'priority': priorityController.text,
-                                            'anticipatedTime':
-                                                int.tryParse(
-                                                  anticipatedTimeController
-                                                      .text,
-                                                ) ??
-                                                0,
-                                            'status':
-                                                tasks[index]['status'] ??
-                                                'to-do',
-                                          };
-                                        });
+                            //   Row(
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       ElevatedButton(
+                            //         onPressed: () async {
+                            //           if (editing) {
+                            //             setState(() {
+                            //               tasks[index] = {
+                            //                 'name': nameController.text,
+                            //                 'category': categoryController.text,
+                            //                 'startDate':
+                            //                     startDateController.text,
+                            //                 'endDate': endDateController.text,
+                            //                 'startTime':
+                            //                     startTimeController.text,
+                            //                 'endTime': endTimeController.text,
+                            //                 'priority': priorityController.text,
+                            //                 'anticipatedTime':
+                            //                     int.tryParse(
+                            //                       anticipatedTimeController
+                            //                           .text,
+                            //                     ) ??
+                            //                     0,
+                            //                 'status':
+                            //                     tasks[index]['status'] ??
+                            //                     'to-do',
+                            //               };
+                            //             });
 
-                                        await FileManager.writeUpdatedTasks(
-                                          tasks,
-                                        );
-                                        _loadTasks();
-                                      }
+                            //             await FileManager.writeUpdatedTasks(
+                            //               tasks,
+                            //             );
+                            //             _loadTasks();
+                            //           }
 
-                                      setState(() {
-                                        isEditing[index] = !editing;
-                                      });
-                                    },
+                            //           setState(() {
+                            //             isEditing[index] = !editing;
+                            //           });
+                            //         },
 
-                                    child: Text(editing ? 'Save' : 'Edit'),
-                                  ),
-                                  SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      setState(() {
-                                        // Ensure tasks and isEditing are modifiable
-                                        tasks = List.from(tasks);
-                                        isEditing = List.from(isEditing);
+                            //         child: Text(editing ? 'Save' : 'Edit'),
+                            //       ),
+                            //       SizedBox(width: 8),
+                            //       ElevatedButton(
+                            //         onPressed: () async {
+                            //           setState(() {
+                            //             // Ensure tasks and isEditing are modifiable
+                            //             tasks = List.from(tasks);
+                            //             isEditing = List.from(isEditing);
 
-                                        if (index >= 0 &&
-                                            index < tasks.length) {
-                                          tasks.removeAt(index);
-                                          isEditing.removeAt(index);
-                                        }
-                                      });
+                            //             if (index >= 0 &&
+                            //                 index < tasks.length) {
+                            //               tasks.removeAt(index);
+                            //               isEditing.removeAt(index);
+                            //             }
+                            //           });
 
-                                      await FileManager.writeUpdatedTasks(
-                                        tasks,
-                                      );
-                                    },
-                                    child: Text('Remove'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
+                            //           await FileManager.writeUpdatedTasks(
+                            //             tasks,
+                            //           );
+                            //         },
+                            //         child: Text('Remove'),
+                            //       ),
+                            //     ],
+                            //   ),
+                             ],
+                           ),
                           SizedBox(height: 8),
-
                           // Category and Duration
                           Row(
                             children: [
@@ -417,7 +423,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                         ? TextField(
                                           controller: categoryController,
                                         )
-                                        : Text(task['category']),
+                                        : Text(task.taskCategory),
                                   ],
                                 ),
                               ),
@@ -484,7 +490,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                           ],
                                         )
                                         : Text(
-                                          '${task['startTime']} ${task['startDate']} - ${task['endTime']} ${task['endDate']}',
+                                          '${task.startTime} ${task.startDate} - ${task.endTime} ${task.endDate}',
                                         ),
                                   ],
                                 ),
@@ -511,7 +517,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                         ? TextField(
                                           controller: priorityController,
                                         )
-                                        : Text(task['priority']),
+                                        : Text(task.taskPriority),
                                   ],
                                 ),
                               ),
@@ -531,55 +537,56 @@ class _TasksScreenState extends State<TasksScreen> {
                                           controller: anticipatedTimeController,
                                         )
                                         : Text(
-                                          '${task['anticipatedTime']} min',
+                                          '${task.anticipatedTime} min',
                                         ),
                                   ],
                                 ),
                               ),
                             ],
                           ),
-                          // Status Dropdown
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Status:',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    editing
-                                        ? DropdownButton<String>(
-                                          value: task['status'] ?? 'to-do',
-                                          items:
-                                              [
-                                                    'to-do',
-                                                    'in progress',
-                                                    'completed',
-                                                  ]
-                                                  .map(
-                                                    (status) =>
-                                                        DropdownMenuItem(
-                                                          value: status,
-                                                          child: Text(status),
-                                                        ),
-                                                  )
-                                                  .toList(),
-                                          onChanged: (value) {
-                                            setState(() {
-                                              tasks[index]['status'] = value!;
-                                            });
-                                          },
-                                        )
-                                        : Text(task['status'] ?? 'to-do'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                          //Status Dropdown
+                          //TODO fix this later
+                          // Row(
+                          //   children: [
+                          //     Expanded(
+                          //       child: Column(
+                          //         crossAxisAlignment: CrossAxisAlignment.start,
+                          //         children: [
+                          //           Text(
+                          //             'Status:',
+                          //             style: TextStyle(
+                          //               fontWeight: FontWeight.bold,
+                          //             ),
+                          //           ),
+                          //           editing
+                          //               ? DropdownButton<String>(
+                          //                 value: task['status'] ?? 'to-do',
+                          //                 items:
+                          //                     [
+                          //                           'to-do',
+                          //                           'in progress',
+                          //                           'completed',
+                          //                         ]
+                          //                         .map(
+                          //                           (status) =>
+                          //                               DropdownMenuItem(
+                          //                                 value: status,
+                          //                                 child: Text(status),
+                          //                               ),
+                          //                         )
+                          //                         .toList(),
+                          //                 onChanged: (value) {
+                          //                   setState(() {
+                          //                     tasks[index]['status'] = value!;
+                          //                   });
+                          //                 },
+                          //               )
+                          //               : Text(task['status'] ?? 'to-do'),
+                          //         ],
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                         ],
                       ),
                     );
