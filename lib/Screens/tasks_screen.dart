@@ -314,30 +314,29 @@ class _TasksScreenState extends State<TasksScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // TODO Fix this later
-                          // Row with Task Title and Buttons
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     // Task Title (Left side)
-                          //     Expanded(
-                          //       child:
-                          //           editing
-                          //               ? TextField(controller: nameController)
-                          //               : Flexible(
-                          //                 child: Text(
-                          //                   task.taskName,
-                          //                   style: TextStyle(
-                          //                     fontSize: 18,
-                          //                     fontWeight: FontWeight.bold,
-                          //                   ),
-                          //                   overflow: TextOverflow.ellipsis,
-                          //                   maxLines:
-                          //                       2, // Allows multi-line if necessary
-                          //                   softWrap: true,
-                          //                 ),
-                          //               ),
-                          //     ),
-
+                          //Row with Task Title and Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Task Title (Left side)
+                              Expanded(
+                                child:
+                                    editing
+                                        ? TextField(controller: nameController)
+                                        : Flexible(
+                                          child: Text(
+                                            task.taskName,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines:
+                                                2, // Allows multi-line if necessary
+                                            softWrap: true,
+                                          ),
+                                        ),
+                              ),
                               //TODO Fix whatever this function is.....
                               // Buttons (Right side)
                             //   Row(
@@ -405,8 +404,8 @@ class _TasksScreenState extends State<TasksScreen> {
                             //       ),
                             //     ],
                             //   ),
-                            // ],
-                          // ),
+                             ],
+                           ),
 
                           SizedBox(height: 8),
 
