@@ -54,10 +54,13 @@ class Task {
 class ManageTasks {
   
   static Future<void> saveTask(Map<String, dynamic> taskToSave) async {
+    print("in saveTask method, taskToSave is: $taskToSave");
     // Load the database file
     try {
       //load file
-      final idbFile = IdbFile('/tasks/tasks_data.json');
+      final idbFile = IdbFile("files.db");
+      bool exists = await idbFile.exists();
+      print("save task does it exist? $exists");
       //on successful load
       if (await idbFile.exists()) {
         //TODO debug check to see if adding multiple tasks works with this code
@@ -68,6 +71,7 @@ class ManageTasks {
       } 
       //on fail to load, may not need this with the try/catach
       else {
+        print("did not load db file in saveTasks method");
         //TODO else logic
       }
     } catch (e) {
@@ -80,22 +84,27 @@ class ManageTasks {
     List<Map<String, dynamic>> taskMapList = []; 
     try {
       //load the file
-      final idbFile = IdbFile('/tasks/tasks_data.json');
+      final idbFile = IdbFile('files.db/files');
       if (await idbFile.exists()) {
+        print("If Statement: loaded db file in loadTasks method");
         //TODO make this a loop capable of handling multiple tasks
         //read the file
         String tasksString = await idbFile.readAsString();
+        print('tasksString (In loadTask method), $tasksString');
         //decode task from json into a map<String, dynamic>
         Map<String, dynamic> taskMap = jsonDecode(tasksString);
+        print('taskMap (In loadTask method), $taskMap');
         //add the map to the list of task maps
         taskMapList.add(taskMap);
       } 
       else {
-        //TODO else logic
+        print("did not load db file in loadTasks method");
+        //TODO else logic may not need an else due to try and catch?
       }
     } catch (e) { 
       print('Error: $e');
     }
+    print('TaskMapList (In loadTask method), $taskMapList');
     return taskMapList;
   } //end LoadTasks
 
@@ -121,7 +130,7 @@ class ManageTasks {
 
 
 
-    //TODO Edit  Task function
+    //TODO Edit Task function
   static Future<bool> editTask(String idOfTaskToEdit) async {
     try {
       //load the file

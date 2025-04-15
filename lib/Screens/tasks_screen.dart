@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planner/IndexDB/task_manage.dart';
 import 'package:planner/Screens/home_screen.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
@@ -26,9 +27,10 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<void> _loadTasks() async {
-    List<Map<String, dynamic>> loadedTasks = await TaskStorage.loadTasks();
+    List<Map<String, dynamic>> loadedTasks = await ManageTasks.loadTasks();
     setState(() {
       tasks = List.from(loadedTasks);
+      print('Tasks $loadedTasks');
       isEditing = List.filled(tasks.length, false);
     });
   }
