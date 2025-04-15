@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:idb_shim/idb_browser.dart';
-import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:uuid/uuid.dart'; // For generating unique IDs
 import '../IndexDB/idb_file.dart'; // Import your IdbFile class
 
