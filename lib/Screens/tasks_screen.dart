@@ -136,7 +136,11 @@ class _TasksScreenState extends State<TasksScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(child: Text('Tasks')),
+        backgroundColor: const Color.fromARGB(179, 254, 175, 255),
+        title: Center(child: Text(
+          'Tasks',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )),
         actions: [
           // Filter Dropdown Button
           PopupMenuButton<String>(
