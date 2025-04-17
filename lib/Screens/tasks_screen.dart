@@ -7,7 +7,6 @@ import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 //import '../IndexDB/task.dart';
 
-
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
 
@@ -81,8 +80,8 @@ class _TasksScreenState extends State<TasksScreen> {
       tasks.sort((a, b) {
         List<String> order =
             _sortByCategoryAscending
-                ? ['School', 'Work', 'Personal']
-                : ['Personal', 'Work', 'School'];
+                ? ['Personal', 'School', 'Work']
+                : ['Work', 'School', 'Personal'];
         return order
             .indexOf(a.taskCategory)
             .compareTo(order.indexOf(b.taskCategory));
@@ -94,10 +93,14 @@ class _TasksScreenState extends State<TasksScreen> {
   void _sortTasksByAnticipatedTime() {
     setState(() {
       tasks.sort((a, b) {
+        int aTotalMinutes = a.anticipatedHours * 60 + a.anticipatedMinutes;
+        int bTotalMinutes = b.anticipatedHours * 60 + b.anticipatedMinutes;
+
         return _sortByTimeAscending
-            ? a.anticipatedTime.compareTo(b.anticipatedTime)
-            : b.anticipatedTime.compareTo(a.anticipatedTime);
+            ? aTotalMinutes.compareTo(bTotalMinutes)
+            : bTotalMinutes.compareTo(aTotalMinutes);
       });
+
       _sortByTimeAscending = !_sortByTimeAscending;
     });
   }
@@ -301,10 +304,10 @@ class _TasksScreenState extends State<TasksScreen> {
                         TextEditingController(text: task.endDate.toString());
                     TextEditingController priorityController =
                         TextEditingController(text: task.taskPriority);
-                    TextEditingController anticipatedTimeController =
-                        TextEditingController(
-                          text: task.anticipatedTime.toString(),
-                        );
+                    TextEditingController anticipatedHoursController =
+                        TextEditingController(text: task.anticipatedHours.toString());
+                    TextEditingController anticipatedMinutesController =
+                        TextEditingController(text: task.anticipatedMinutes.toString());
 
                     return Container(
                       margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -537,12 +540,49 @@ class _TasksScreenState extends State<TasksScreen> {
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: anticipatedTimeController,
-                                        )
+                                        ? Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Anticipated Time:',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    editing
+                                                        ? Row(
+                                                            children: [
+                                                              Expanded(
+                                                                child: TextField(
+                                                                  controller: anticipatedHoursController,
+                                                                  keyboardType: TextInputType.number,
+                                                                  decoration: InputDecoration(labelText: 'Hours'),
+                                                                ),
+                                                              ),
+                                                              SizedBox(width: 8),
+                                                              Expanded(
+                                                                child: TextField(
+                                                                  controller: anticipatedMinutesController,
+                                                                  keyboardType: TextInputType.number,
+                                                                  decoration: InputDecoration(labelText: 'Minutes'),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        : Text(
+                                                            '${task.anticipatedHours} hr ${task.anticipatedMinutes} min',
+                                                          ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
                                         : Text(
-                                          '${task.anticipatedTime} min',
-                                        ),
+                                            '${task.anticipatedHours} hr ${task.anticipatedMinutes} min',
+                                          ),
                                   ],
                                 ),
                               ),

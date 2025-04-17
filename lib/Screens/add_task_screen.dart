@@ -19,7 +19,8 @@ class AddTaskScreen extends StatefulWidget {
 
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController anticipatedTimeController = TextEditingController();
+  final TextEditingController anticipatedHoursController = TextEditingController();
+  final TextEditingController anticipatedMinutesController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
 
@@ -44,7 +45,29 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         } else {
           endTime = pickedTime;
         }
+        // Calculate anticipated time after both are picked
+        if (startTime != null && endTime != null) {
+          calculateAnticipatedTime();
+        }
       });
+    }
+  }
+
+  void calculateAnticipatedTime() {
+    if (startTime != null && endTime != null) {
+      final start = Duration(hours: startTime!.hour, minutes: startTime!.minute);
+      final end = Duration(hours: endTime!.hour, minutes: endTime!.minute);
+
+      final diff = end - start;
+
+      // If the time goes past midnight, adjust
+      final adjustedDiff = diff.isNegative ? diff + Duration(days: 1) : diff;
+
+      final hours = adjustedDiff.inHours;
+      final minutes = adjustedDiff.inMinutes % 60;
+
+      anticipatedHoursController.text = hours.toString();
+      anticipatedMinutesController.text = minutes.toString();
     }
   }
 
@@ -72,7 +95,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-    // Index DB implementation of submitTask function
+  // Index DB implementation of submitTask function
   void submitTask() async {
     // Check data fields are not empty 
     if (nameController.text.isNotEmpty &&
@@ -80,7 +103,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         endTime != null &&
         startDate != null &&
         endDate != null &&
-        anticipatedTimeController.text.isNotEmpty) {
+        (anticipatedHoursController.text.isNotEmpty || anticipatedMinutesController.text.isNotEmpty)) {
       
       // Map user input to new task object
       final newTask = Task(
@@ -90,8 +113,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           startDate: startDate!, 
           endDate: endDate!, 
           startTime: startTime!, 
-          endTime: endTime!, 
-          anticipatedTime: int.parse(anticipatedTimeController.text)
+          endTime: endTime!,
+          anticipatedHours: int.parse(anticipatedHoursController.text),
+          anticipatedMinutes: int.parse(anticipatedMinutesController.text),   
+
+
       );
       try {
       // //for debug print statements TODO remove from code once its all working
@@ -115,7 +141,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       // Reset all form fields
       setState(() {
         nameController.clear();
-        anticipatedTimeController.clear();
+        anticipatedHoursController.clear();
+        anticipatedMinutesController.clear();
         startDateController.clear();
         endDateController.clear();
         taskCategory = 'Work'; // Reset to default
@@ -292,10 +319,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               SizedBox(height: 10),
 
               // Anticipated Time Field
-              TextField(
-                controller: anticipatedTimeController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(labelText: 'Anticipated Time (in minutes)'),
+              Text("Anticipated Time:"),
+              SizedBox(height: 5),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: anticipatedHoursController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: 'Hours'),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: anticipatedMinutesController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: 'Minutes'),
+                    ),
+                  ),
+                ],
               ),
 
               SizedBox(height: 20),
