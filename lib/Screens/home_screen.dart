@@ -8,6 +8,7 @@ import '../Pomo_Menu_Classes/timer_test_page.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../file_manager.dart'; // Import FileManager
 import 'package:intl/intl.dart';
+import '../notification_service.dart'; // Import NotificationService
 
 // Home screen widget
 class HomeScreen extends StatefulWidget {
@@ -132,6 +133,19 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
           ),
+
+            // 🛎️ Notification Test Button (NEW)
+          IconButton(
+            icon: Icon(Icons.notifications_active),
+            tooltip: 'Test Notification',
+            onPressed: () {
+              NotificationService.showNotification(
+                "Time to Study!",
+                "Don't forget your flashcards!",
+              );
+            },
+          ),
+
         ],
       ),
       body: SfCalendar(

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart'; // Import the login page
+import 'notification_service.dart'; // import your notification service
 
-void main() {
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures plugins are ready
+  await NotificationService.initialize();
   runApp(StudentPlannerApp());
 }
 
