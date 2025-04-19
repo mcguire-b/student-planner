@@ -52,8 +52,11 @@ class FileManager {
     if (!userExists) {
       //add salt and the password
       String salt = generateSalt();
+      String hashedPassword = encodePassword(userData["password"], salt);
+      
       userData["salt"] = salt;
-      userData["password"] = encodePassword(userData["password"], salt);
+      userData["password_hash"] = hashedPassword;
+      userData.remove("password"); // Don't store raw password
 
 
       existingUsers.add(userData);
@@ -117,7 +120,7 @@ class FileManager {
     String salt = user["salt"];
     String hashedInput = encodePassword(inputPassword, salt);
 
-    return hashedInput == user["password"];
+    return hashedInput == user["password_hash"];
   }
 
 

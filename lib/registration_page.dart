@@ -27,14 +27,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _isLoading = true; // Show loading spinner
       });
 
-      // Encode the password before saving
-      final hashedPassword = FileManager.encodePassword(passwordController.text, "saltValue"); // Replace "saltValue" with the actual second argument required
+      
 
       // User data to be saved
       Map<String, dynamic> userData = {
-        "username": nameController.text,
-        "email": emailController.text,
-        "password_hash": hashedPassword, // Should be hashed in real apps
+        "username": nameController.text.trim(),
+        "email": emailController.text.trim(),
+        "password": passwordController.text, // Should be hashed in real apps
         "created_at": DateTime.now().toIso8601String(),
         "last_login": null
       };
