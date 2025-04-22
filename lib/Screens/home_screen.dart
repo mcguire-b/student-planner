@@ -122,10 +122,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(179, 254, 175, 255),
-        title: Text(
-          'Student Planner - Home',
-          style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Student Planner - Home',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20, // Adjust the font size as needed
+              ),
+            ),
+          ],
+        ),
         leading: IconButton(
           icon: Icon(Icons.logout),
           onPressed: () {

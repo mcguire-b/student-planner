@@ -60,12 +60,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Register",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
         backgroundColor: const Color.fromARGB(179, 254, 175, 255),
-        ), // App bar title
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Register",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20, // Adjust the font size if needed
+              ),
+            ),
+          ],
+        ),
+      ),
+ // App bar title
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Form(
