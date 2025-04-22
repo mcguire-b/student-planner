@@ -7,6 +7,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures plugins are ready
   await NotificationService.initialize();
   runApp(StudentPlannerApp());
+
+  //final database = AppDatabase(); //may need to re-enable this line for web support later
 }
 
 // Root widget of the application

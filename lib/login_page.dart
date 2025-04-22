@@ -77,7 +77,13 @@ class _LoginPageState extends State<LoginPage> {
 @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Study Flow Login")), // App bar title
+      appBar: AppBar(
+        title: Text(
+          "Study Flow Login",
+          style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        backgroundColor: const Color.fromARGB(140, 254, 175, 255),
+      ), // App bar title
       body: Padding(
         padding: EdgeInsets.all(16.0), // Add padding
         child: Form(
