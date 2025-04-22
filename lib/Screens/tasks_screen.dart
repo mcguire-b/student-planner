@@ -5,7 +5,6 @@ import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
-import 'package:intl/intl.dart';
 
 //import '../IndexDB/task.dart';
 
@@ -61,6 +60,7 @@ class _TasksScreenState extends State<TasksScreen> {
       await FileManager.writeTaskData(newTask);
       _loadTasks(); // Reload tasks, which resets `isEditing`
     }
+    _loadTasks();
   }
 
   void _sortTasksByPriority() {
