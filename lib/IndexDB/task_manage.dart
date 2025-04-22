@@ -198,43 +198,27 @@ class ManageTasks {
 
 
 
-  //TODO Delete Task function
-  static Future<bool> deleteTask(String idOfTaskToDelete) async {
-    try {
-      //load the file
-      final idbFile = IdbFile('taskRecords.txt');
-      if (await idbFile.exists()) {
-      } 
-      else {
-        //TODO else logic
-      }
-    } catch (e) { 
-      print('Error: $e');
+static Future<bool> deleteTask(String idOfTaskToDelete) async {
+  try {
+    // Open the IndexedDB file for the task
+    final idbFile = IdbFile(idOfTaskToDelete);
+
+    // Check if the file exists
+    if (await idbFile.exists()) {
+      // Delete the task file
+      await idbFile.delete();
+
+      print("Task with ID $idOfTaskToDelete has been deleted.");
+      return true;
+    } else {
+      print("Task with ID $idOfTaskToDelete does not exist.");
+      return false;
     }
+  } catch (e) {
+    print('Error: $e');
     return false;
-  }// end delete task
-
-
-
-
-    //TODO Edit Task function
-  static Future<bool> editTask(String idOfTaskToEdit) async {
-    try {
-      //load the file
-      final idbFile = IdbFile('taskRecords.txt');
-      if (await idbFile.exists()) {
-      } 
-      else {
-        //TODO else logic
-      }
-    } catch (e) { 
-      print('Error: $e');
-    }
-    return false;
-  }// end editTask
-
-
-
+  }
+}
 
 }// end ManageTasks class
 

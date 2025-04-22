@@ -281,7 +281,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
               )
               : Expanded(
-                child: ListView.builder(
+                child: 
+                ListView.builder(
                   itemCount: filteredTasks.length,
                   itemBuilder: (context, index) {
                     final task = filteredTasks[index];
@@ -322,96 +323,90 @@ class _TasksScreenState extends State<TasksScreen> {
                         children: [
                           //Row with Task Title and Buttons
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Task Title (Left side)
+                              // Task Title (left side)
                               Expanded(
-                                child:
-                                    editing
-                                        ? TextField(controller: nameController)
-                                        : Flexible(
-                                          child: Text(
-                                            task.taskName,
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines:
-                                                2, // Allows multi-line if necessary
-                                            softWrap: true,
-                                          ),
+                                child: editing
+                                    ? TextField(controller: nameController)
+                                    : Text(
+                                        task.taskName,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        softWrap: true,
+                                      ),
                               ),
-                              //TODO Fix whatever this function is.....
-                              // Buttons (Right side)
-                            //   Row(
-                            //     mainAxisSize: MainAxisSize.min,
-                            //     children: [
-                            //       ElevatedButton(
-                            //         onPressed: () async {
-                            //           if (editing) {
-                            //             setState(() {
-                            //               tasks[index] = {
-                            //                 'name': nameController.text,
-                            //                 'category': categoryController.text,
-                            //                 'startDate':
-                            //                     startDateController.text,
-                            //                 'endDate': endDateController.text,
-                            //                 'startTime':
-                            //                     startTimeController.text,
-                            //                 'endTime': endTimeController.text,
-                            //                 'priority': priorityController.text,
-                            //                 'anticipatedTime':
-                            //                     int.tryParse(
-                            //                       anticipatedTimeController
-                            //                           .text,
-                            //                     ) ??
-                            //                     0,
-                            //                 'status':
-                            //                     tasks[index]['status'] ??
-                            //                     'to-do',
-                            //               };
-                            //             });
+                              // Buttons (top-right side)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit, color: Colors.purple),
+                                    tooltip: 'Edit Task',
+                                    onPressed: () {
+                                      setState(() {
+                                        isEditing[index] = true;
+                                        nameController.text = task.taskName;
+                                        categoryController.text = task.taskCategory;
+                                        priorityController.text = task.taskPriority;
+                                        anticipatedHoursController.text =
+                                            task.anticipatedHours.toString();
+                                        anticipatedMinutesController.text =
+                                            task.anticipatedMinutes.toString();
+                                        startDateController.text = task.startDate.toString();
+                                        startTimeController.text = task.startTime.toString();
+                                        endDateController.text = task.endDate.toString();
+                                        endTimeController.text = task.endTime.toString();
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.purple),
+                                    tooltip: 'Delete Task',
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Delete Task'),
+                                          content: Text('Are you sure you want to delete this task?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: Text('Delete'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
 
-                            //             await FileManager.writeUpdatedTasks(
-                            //               tasks,
-                            //             );
-                            //             _loadTasks();
-                            //           }
+                                      if (confirm == true) {
+                                        // Call ManageTasks.deleteTask instead of FileManager.deleteTask
+                                        bool success = await ManageTasks.deleteTask(task.id); // Your delete logic
 
-                            //           setState(() {
-                            //             isEditing[index] = !editing;
-                            //           });
-                            //         },
+                                        if (success) {
+                                          // Refresh the task list if the deletion was successful
+                                          _loadTasks();
+                                        } else {
+                                          // Handle failure (e.g., show an error message)
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('Failed to delete task')),
+                                          );
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
 
-                            //         child: Text(editing ? 'Save' : 'Edit'),
-                            //       ),
-                            //       SizedBox(width: 8),
-                            //       ElevatedButton(
-                            //         onPressed: () async {
-                            //           setState(() {
-                            //             // Ensure tasks and isEditing are modifiable
-                            //             tasks = List.from(tasks);
-                            //             isEditing = List.from(isEditing);
-
-                            //             if (index >= 0 &&
-                            //                 index < tasks.length) {
-                            //               tasks.removeAt(index);
-                            //               isEditing.removeAt(index);
-                            //             }
-                            //           });
-
-                            //           await FileManager.writeUpdatedTasks(
-                            //             tasks,
-                            //           );
-                            //         },
-                            //         child: Text('Remove'),
-                            //       ),
-                            //     ],
-                            //   ),
-                             ],
-                           ),
                           SizedBox(height: 8),
                           // Category and Duration
                           Row(
@@ -546,12 +541,6 @@ class _TasksScreenState extends State<TasksScreen> {
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      'Anticipated Time:',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
                                                     editing
                                                         ? Row(
                                                             children: [
@@ -588,6 +577,44 @@ class _TasksScreenState extends State<TasksScreen> {
                               ),
                             ],
                           ),
+                                 // Save and Cancel buttons when editing (Change: Added these buttons)
+                          if (editing) ...[
+                            SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isEditing[index] = false; // Change: Stop editing mode
+                                      // Revert changes if canceled (Change: Reset fields to original task values)
+                                      nameController.text = task.taskName;
+                                      categoryController.text = task.taskCategory;
+                                      anticipatedHoursController.text = task.anticipatedHours.toString();
+                                      anticipatedMinutesController.text = task.anticipatedMinutes.toString();
+                                    });
+                                  },
+                                  child: Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      // Save changes (Change: Save changes to task fields)
+                                      task.taskName = nameController.text;
+                                      task.taskCategory = categoryController.text;
+                                      task.anticipatedHours = int.parse(anticipatedHoursController.text);
+                                      task.anticipatedMinutes = int.parse(anticipatedMinutesController.text);
+                                      isEditing[index] = false; // Change: Stop editing mode
+                                    });
+                                    // Optionally, save the updated task in the database (Change: Update task in database)
+                                    ManageTasks.saveTask(Task.taskToMap(task));
+                                  },
+                                  child: Text('Save'),
+                                ),
+                              ],
+                            ),
+                          ],
+
                           //Status Dropdown
                           //TODO fix this later
                           // Row(
