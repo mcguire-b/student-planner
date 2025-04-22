@@ -5,6 +5,8 @@ import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
+import 'package:intl/intl.dart';
+
 //import '../IndexDB/task.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -497,7 +499,8 @@ class _TasksScreenState extends State<TasksScreen> {
                                           ],
                                         )
                                         : Text(
-                                          '${task.startTime} ${task.startDate} - ${task.endTime} ${task.endDate}',
+                                          '${DateFormat('M-dd-yyyy').format(task.startDate)} ${task.startTime.format(context)} - '
+                                          '${DateFormat('M-dd-yyyy').format(task.endDate)} ${task.endTime.format(context)}',
                                         ),
                                   ],
                                 ),
