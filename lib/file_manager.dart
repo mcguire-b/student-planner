@@ -114,8 +114,14 @@ class FileManager {
   static Future<bool> verifyPassword(String email, String inputPassword) async {
     List <Map<String, dynamic>> existingUsers = await readUserData();
 
-    final user = existingUsers.firstWhere((user) =>  user["email"] == email, orElse: () => {});
-    if(user.isEmpty) return false;
+
+    final user = existingUsers.firstWhere(
+      (user) =>  user["email"] == email, 
+      orElse: () => <String, dynamic>{},); // Return empty map if no user found
+  
+    
+    if(!user.containsKey("email")) return false;
+    
 
     String salt = user["salt"];
     String hashedInput = encodePassword(inputPassword, salt);
