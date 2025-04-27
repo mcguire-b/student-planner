@@ -85,38 +85,8 @@ class Task {
 } // end of task class
 
 class ManageTasks {
-  
-  // static Future<void> saveTask(Map<String, dynamic> taskToSave) async {
-  //   print("in saveTask method, taskToSave is: $taskToSave");
-  //   // Load the database file
-  //   try {
-  //     //load file
-  //     final idbFile = IdbFile('TasksDB');
-  //     bool exists = await idbFile.exists();
-  //     print("save task does it exist? $exists");
-  //     //on successful load
-  //     if (await idbFile.exists()) {
-  //       //TODO debug check to see if adding multiple tasks works with this code
-  //       //convert the task to save into a json string
-  //       String jsonTask = jsonEncode(taskToSave);
-  //       //add the string to the task file
-  //       idbFile.writeAsString(jsonTask);
-  //     } 
-  //     //on fail to load, may not need this with the try/catach
-  //     else {
-  //       print("did not load db file in saveTasks method");
-  //       //TODO else logic
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }//end saveTasks
-
-
-  
 
     static Future<void> saveTask(Map<String, dynamic> taskToSave) async {
-    print("in saveTask method, taskToSave is: $taskToSave");
     // Load the database file
     try {
       //get task ID
@@ -125,13 +95,8 @@ class ManageTasks {
       final idbFile = IdbFile(id);
       //create json formatted task string
       String jsonTask = jsonEncode(taskToSave);
-
-      print("saveTask Method: JsonTask String: $jsonTask");
-
       //write the json string task to the DB
       await idbFile.writeAsString(jsonTask);
-      print("SaveTask Method: Task saved under key: $id");
-
     } 
     catch (e) {
       print('Save Task Error: $e');
@@ -139,44 +104,8 @@ class ManageTasks {
   }//end saveTasks
 
 
-  //changes 
-//
-
-
-
-  // static Future<List<Map<String, dynamic>>> loadTasks() async {
-  //   // try loading the database file
-  //   List<Map<String, dynamic>> taskMapList = []; 
-  //   try {
-  //     //load the file
-  //     final idbFile = IdbFile("TasksDB");
-  //     if (await idbFile.exists()) {
-  //       print("If Statement: loaded db file in loadTasks method");
-  //       //TODO make this a loop capable of handling multiple tasks
-  //       //read the file
-  //       String tasksString = await idbFile.readAsString();
-  //       print('tasksString (In loadTask method), $tasksString');
-  //       //decode task from json into a map<String, dynamic>
-  //       Map<String, dynamic> taskMap = jsonDecode(tasksString);
-  //       print('taskMap (In loadTask method), $taskMap');
-  //       //add the map to the list of task maps
-  //       taskMapList.add(taskMap);
-  //     } 
-  //     else {
-  //       print("did not load db file in loadTasks method");
-  //       //TODO else logic may not need an else due to try and catch?
-  //     }
-  //   } catch (e) { 
-  //     print('Error: $e');
-  //   }
-  //   print('TaskMapList (In loadTask method), $taskMapList');
-  //   return taskMapList;
-  // } //end LoadTasks
-
-
   static Future<List<Map<String, dynamic>>> loadTasks() async {
     // try loading the database file
-    //List<Map<String, dynamic>> taskMapList = []; 
     try {
       final rawTasks = await IdbFile.getAllTasks();
       final taskMapList = rawTasks.map((entry) {
@@ -184,16 +113,12 @@ class ManageTasks {
         return jsonDecode(rawJson) as Map<String, dynamic>;
       }).toList();
 
-      print("loadTasks Method: taskMapList: $taskMapList");
-
       return taskMapList;
     } 
     catch (e) { 
       print('Load Task Error: $e');
       return [];
     }
-    //print('TaskMapList (In loadTask method), $taskMapList');
-    //return taskMapList;
   } //end LoadTasks
 
 
@@ -208,10 +133,10 @@ static Future<bool> deleteTask(String idOfTaskToDelete) async {
       // Delete the task file
       await idbFile.delete();
 
-      print("Task with ID $idOfTaskToDelete has been deleted.");
+      //print("Task with ID $idOfTaskToDelete has been deleted.");
       return true;
     } else {
-      print("Task with ID $idOfTaskToDelete does not exist.");
+      //print("Task with ID $idOfTaskToDelete does not exist.");
       return false;
     }
   } catch (e) {

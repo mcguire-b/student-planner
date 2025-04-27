@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter/scheduler.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 import 'home_screen.dart';
-//import '../IndexDB/task.dart';
 import '../IndexDB/task_manage.dart';
 
 
@@ -120,14 +118,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
       );
       try {
-      // //for debug print statements TODO remove from code once its all working
-      // String taskID = newTask.id;  
-      // //debug print statements
-      // print("Saving task: ${newTask.taskName}, Start: ${newTask.startDate}, AntTime: ${newTask.anticipatedTime}"); 
-      // print("End: ${newTask.endDate}, STime: ${newTask.startTime}, ETime: ${newTask.endTime}");
-      // print("Cat: ${newTask.taskCategory}, Prior: ${newTask.taskPriority}, ID: $taskID");
-
-      // TODO Save task to Indexed DB
       //convert a task into a Task map
       Map<String, dynamic> mapOfTask = Task.taskToMap(newTask);
       //save task map to database file

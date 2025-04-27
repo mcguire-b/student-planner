@@ -3,10 +3,8 @@ import 'package:planner/IndexDB/task_manage.dart';
 import 'package:planner/Screens/home_screen.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 
-//import '../IndexDB/task.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -16,10 +14,10 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  //List<Map<String, dynamic>> tasks = [];
+
   List<Task> tasks = [];
 
-  List<bool> isEditing = []; // Corresponding edit states TODO REMOVE FALSE
+  List<bool> isEditing = []; // Corresponding edit states
 
   @override
   void initState() {
@@ -30,10 +28,7 @@ class _TasksScreenState extends State<TasksScreen> {
   Future<void> _loadTasks() async {
     List<Map<String, dynamic>> loadedTasks = await ManageTasks.loadTasks();
     setState(() {
-      //tasks = loadedTasks.map((map) => Task.fromMap(map)).toList();
       tasks = loadedTasks.map<Task>((map) => Task.fromMap(map)).toList();
-      print('Task Screen loaded Tasks $loadedTasks');
-      print('Task Screen: tasks: $tasks');
       isEditing = List.filled(tasks.length, false);
     });
   }
@@ -57,7 +52,6 @@ class _TasksScreenState extends State<TasksScreen> {
     );
 
     if (newTask != null) {
-      await FileManager.writeTaskData(newTask);
       _loadTasks(); // Reload tasks, which resets `isEditing`
     }
     _loadTasks();
@@ -296,7 +290,6 @@ class _TasksScreenState extends State<TasksScreen> {
                     final bool editing = isEditing[index];
 
                     // Controllers for inline editing
-                    //TODO .toString() might not work here but, 
                     //i need to clear the error to test other things
                     TextEditingController nameController =
                         TextEditingController(text: task.taskName);
@@ -622,50 +615,6 @@ class _TasksScreenState extends State<TasksScreen> {
                               ],
                             ),
                           ],
-
-                          //Status Dropdown
-                          //TODO fix this later
-                          // Row(
-                          //   children: [
-                          //     Expanded(
-                          //       child: Column(
-                          //         crossAxisAlignment: CrossAxisAlignment.start,
-                          //         children: [
-                          //           Text(
-                          //             'Status:',
-                          //             style: TextStyle(
-                          //               fontWeight: FontWeight.bold,
-                          //             ),
-                          //           ),
-                          //           editing
-                          //               ? DropdownButton<String>(
-                          //                 value: task['status'] ?? 'to-do',
-                          //                 items:
-                          //                     [
-                          //                           'to-do',
-                          //                           'in progress',
-                          //                           'completed',
-                          //                         ]
-                          //                         .map(
-                          //                           (status) =>
-                          //                               DropdownMenuItem(
-                          //                                 value: status,
-                          //                                 child: Text(status),
-                          //                               ),
-                          //                         )
-                          //                         .toList(),
-                          //                 onChanged: (value) {
-                          //                   setState(() {
-                          //                     tasks[index]['status'] = value!;
-                          //                   });
-                          //                 },
-                          //               )
-                          //               : Text(task['status'] ?? 'to-do'),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
                     );
