@@ -114,8 +114,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           endTime: endTime!,
           anticipatedHours: int.parse(anticipatedHoursController.text),
           anticipatedMinutes: int.parse(anticipatedMinutesController.text),   
-
-
+          status: 'To-Do',
       );
       try {
       //convert a task into a Task map
