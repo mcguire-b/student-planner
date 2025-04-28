@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
             startTime: startDateTime,
             endTime: endDateTime,
             subject: task['taskName'],
-            notes: task["status"],
+            notes: task["status"] ?? 'To-Do',
             color: appointmentColor,
           );
         }).toList();
@@ -101,12 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Icon _getStatusIcon(String? status) {
-    switch (status?.toLowerCase()) {
-      case 'completed':
+    switch (status) {
+      case 'Completed':
         return Icon(Icons.check_circle, color: Colors.white, size: 14);
-      case 'in progress':
+      case 'In Progress':
         return Icon(Icons.access_time, color: Colors.white, size: 14);
-      case 'to-do':
+      case 'To-Do':
       default:
         return Icon(Icons.push_pin, color: Colors.white, size: 14);
     }

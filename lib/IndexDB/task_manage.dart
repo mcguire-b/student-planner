@@ -15,6 +15,7 @@ class Task {
   TimeOfDay endTime;
   int anticipatedHours;
   int anticipatedMinutes; 
+  String? status;
   
   //Constructor
   Task({
@@ -28,6 +29,7 @@ class Task {
     required this.endTime,
     required this.anticipatedHours,
     required this.anticipatedMinutes,
+    required this.status
   }) : id = id ?? Uuid().v4(); // Generate a new UUID if not provided
 
 // Helper method to convert TimeOfDay to string, This is used for JSON storage conversion
@@ -62,6 +64,8 @@ class Task {
     endTime: stringToTimeOfDay(map['endTime']),
     anticipatedHours: map['anticipatedHours'],
     anticipatedMinutes: map['anticipatedMinutes'],
+    status: map['status'],
+
   );
 }
  
@@ -78,6 +82,7 @@ class Task {
     'endTime': timeOfDayToString(taskToConvert.endTime),
     'anticipatedHours': taskToConvert.anticipatedHours,
     'anticipatedMinutes': taskToConvert.anticipatedMinutes,
+    'status': taskToConvert.status,
     };
   }
 

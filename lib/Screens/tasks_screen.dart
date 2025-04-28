@@ -578,7 +578,42 @@ class _TasksScreenState extends State<TasksScreen> {
                               ),
                             ],
                           ),
-                                 // Save and Cancel buttons when editing (Change: Added these buttons)
+                          //Status Dropdown
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Status:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    editing
+                                      ?DropdownButton<String>(
+                                        value: task.status ?? 'To-Do',
+                                        items: ['To-Do', 'In Progress', 'Completed']
+                                            .map((status) => DropdownMenuItem(
+                                                  value: status,
+                                                  child: Text(status),
+                                                ))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.status = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task));
+                                        },
+                                      )
+                                      : Text(task.status ?? 'To-Do'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Save and Cancel buttons when editing (Change: Added these buttons)
                           if (editing) ...[
                             SizedBox(height: 8),
                             Row(
@@ -605,6 +640,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                       task.taskCategory = categoryController.text;
                                       task.anticipatedHours = int.parse(anticipatedHoursController.text);
                                       task.anticipatedMinutes = int.parse(anticipatedMinutesController.text);
+                                      task.status = task.status;
                                       isEditing[index] = false; // Change: Stop editing mode
                                     });
                                     // Optionally, save the updated task in the database (Change: Update task in database)
