@@ -119,6 +119,42 @@ class _TasksScreenState extends State<TasksScreen> {
     });
   }
 
+  Future<void> _pickDate(BuildContext context, Task task, bool isStartDate) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? task.startDate : task.endDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isStartDate) {
+          task.startDate = pickedDate;
+        } else {
+          task.endDate = pickedDate;
+        }
+      });
+    }
+  }
+
+  Future<void> _pickTime(BuildContext context, Task task, bool isStartTime) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: isStartTime ? task.startTime : task.endTime,
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        if (isStartTime) {
+          task.startTime = pickedTime;
+        } else {
+          task.endTime = pickedTime;
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Filter the task list based on selected category and priority
@@ -456,22 +492,16 @@ class _TasksScreenState extends State<TasksScreen> {
                                             Row(
                                               children: [
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        startDateController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'Start Date',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickDate(context, task, true), // true = start date
+                                                    child: Text('Start Date: ${DateFormat('M-dd-yyyy').format(task.startDate)}'),
                                                   ),
                                                 ),
                                                 SizedBox(width: 4),
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        startTimeController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'Start Time',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickTime(context, task, true), // true = start time
+                                                    child: Text('Start Time: ${task.startTime.format(context)}'),
                                                   ),
                                                 ),
                                               ],
@@ -479,22 +509,16 @@ class _TasksScreenState extends State<TasksScreen> {
                                             Row(
                                               children: [
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        endDateController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'End Date',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickDate(context, task, false), // false = end date
+                                                    child: Text('End Date: ${DateFormat('M-dd-yyyy').format(task.endDate)}'),
                                                   ),
                                                 ),
                                                 SizedBox(width: 4),
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        endTimeController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'End Time',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickTime(context, task, false), // false = end time
+                                                    child: Text('End Time: ${task.endTime.format(context)}'),
                                                   ),
                                                 ),
                                               ],
