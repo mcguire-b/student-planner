@@ -415,10 +415,10 @@ class _TasksScreenState extends State<TasksScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     Text(
+                                    Text(
                                       'Category:',
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
@@ -434,7 +434,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                           });
                                           ManageTasks.saveTask(Task.taskToMap(task)); 
                                         },
-                                    )
+                                      )
                                     : Text(task.taskCategory),
                                   ],
                                 ),
@@ -514,33 +514,32 @@ class _TasksScreenState extends State<TasksScreen> {
                           SizedBox(height: 4),
 
                           // Priority and Anticipated Time
-                          // TODO priority controller always active, not just when editing
                           Row(
                             children: [
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     Text(
+                                    Text(
                                       'Priority:',
-                                      style: TextStyle(
+                                        style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                    ?DropdownButtonFormField<String>(
-                                      value: task.taskPriority,
-                                      decoration: InputDecoration(labelText: 'Priority'),
-                                      items: ['High', 'Medium', 'Low']
-                                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                                          .toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          task.taskPriority = value!;
-                                        });
-                                        ManageTasks.saveTask(Task.taskToMap(task)); 
-                                      },
-                                    )
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.taskPriority,
+                                        decoration: InputDecoration(labelText: 'Priority'),
+                                        items: ['High', 'Medium', 'Low']
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.taskPriority = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
+                                        },
+                                      )
                                     : Text(task.taskPriority),
                                   ],
                                 ),
@@ -607,12 +606,12 @@ class _TasksScreenState extends State<TasksScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                      Text(
-                                      'Status:',
-                                      style: TextStyle(
+                                        'Status:',
+                                        style: TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    editing
+                                      editing
                                       ?DropdownButtonFormField<String>(
                                         value: task.status,
                                         decoration: InputDecoration(labelText: 'Status'),
@@ -625,7 +624,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                           });
                                           ManageTasks.saveTask(Task.taskToMap(task)); 
                                         },
-                                    )
+                                      )
                                     : Text(task.status ?? 'To-Do'),
                                   ],
                                 ),
