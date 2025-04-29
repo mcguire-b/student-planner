@@ -166,8 +166,6 @@ class ManageTasks {
         return false;
       }
 
-      return true;
-
     }
 
     catch (error) {

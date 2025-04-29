@@ -541,7 +541,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                         ManageTasks.saveTask(Task.taskToMap(task)); 
                                       },
                                     )
-                                    : Text(task.taskPriority ?? 'Medium'),
+                                    : Text(task.taskPriority),
                                   ],
                                 ),
                               ),
