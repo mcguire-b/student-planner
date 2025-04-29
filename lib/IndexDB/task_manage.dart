@@ -128,27 +128,52 @@ class ManageTasks {
 
 
 
-static Future<bool> deleteTask(String idOfTaskToDelete) async {
-  try {
-    // Open the IndexedDB file for the task
-    final idbFile = IdbFile(idOfTaskToDelete);
+  static Future<bool> deleteTask(String idOfTaskToDelete) async {
+    try {
+      // Open the IndexedDB file for the task
+      final idbFile = IdbFile(idOfTaskToDelete);
 
-    // Check if the file exists
-    if (await idbFile.exists()) {
-      // Delete the task file
-      await idbFile.delete();
+      // Check if the file exists
+      if (await idbFile.exists()) {
+        // Delete the task file
+        await idbFile.delete();
 
-      //print("Task with ID $idOfTaskToDelete has been deleted.");
-      return true;
-    } else {
-      //print("Task with ID $idOfTaskToDelete does not exist.");
+        //print("Task with ID $idOfTaskToDelete has been deleted.");
+        return true;
+      } else {
+        //print("Task with ID $idOfTaskToDelete does not exist.");
+        return false;
+      }
+    } catch (e) {
+      print('Error: $e');
       return false;
     }
-  } catch (e) {
-    print('Error: $e');
-    return false;
   }
-}
 
+  // May not need this function as in-line editing in tasks_screen 
+  // in conjunction with the saveTask function appears to be functional
+  static Future<bool> editTask(String idOfTaskToEdit) async {
+    //open file
+    final idbFile = IdbFile(idOfTaskToEdit);
+
+    try {
+      //locate task to edit
+      if (await idbFile.exists()) {
+        return true;
+
+      } else {
+        print('task not found: ID: $idOfTaskToEdit');
+        return false;
+      }
+
+      return true;
+
+    }
+
+    catch (error) {
+      print('Error: $error');
+      return false;
+    }
+  }
 }// end ManageTasks class
 

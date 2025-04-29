@@ -415,17 +415,27 @@ class _TasksScreenState extends State<TasksScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                     Text(
                                       'Category:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: categoryController,
-                                        )
-                                        : Text(task.taskCategory),
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.taskCategory,
+                                        decoration: InputDecoration(labelText: 'Category'),
+                                        items: ['Work', 'Personal', 'School', 'Other']
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.taskCategory = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
+                                        },
+                                    )
+                                    : Text(task.taskCategory),
                                   ],
                                 ),
                               ),
@@ -504,23 +514,34 @@ class _TasksScreenState extends State<TasksScreen> {
                           SizedBox(height: 4),
 
                           // Priority and Anticipated Time
+                          // TODO priority controller always active, not just when editing
                           Row(
                             children: [
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                     Text(
                                       'Priority:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: priorityController,
-                                        )
-                                        : Text(task.taskPriority),
+                                    ?DropdownButtonFormField<String>(
+                                      value: task.taskPriority,
+                                      decoration: InputDecoration(labelText: 'Priority'),
+                                      items: ['High', 'Medium', 'Low']
+                                          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          task.taskPriority = value!;
+                                        });
+                                        ManageTasks.saveTask(Task.taskToMap(task)); 
+                                      },
+                                    )
+                                    : Text(task.taskPriority ?? 'Medium'),
                                   ],
                                 ),
                               ),
@@ -585,29 +606,27 @@ class _TasksScreenState extends State<TasksScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                     Text(
                                       'Status:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                      ?DropdownButton<String>(
-                                        value: task.status ?? 'To-Do',
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.status,
+                                        decoration: InputDecoration(labelText: 'Status'),
                                         items: ['To-Do', 'In Progress', 'Completed']
-                                            .map((status) => DropdownMenuItem(
-                                                  value: status,
-                                                  child: Text(status),
-                                                ))
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                                             .toList(),
                                         onChanged: (value) {
                                           setState(() {
                                             task.status = value!;
                                           });
-                                          ManageTasks.saveTask(Task.taskToMap(task));
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
                                         },
-                                      )
-                                      : Text(task.status ?? 'To-Do'),
+                                    )
+                                    : Text(task.status ?? 'To-Do'),
                                   ],
                                 ),
                               ),
@@ -625,6 +644,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                       isEditing[index] = false; // Change: Stop editing mode
                                       // Revert changes if canceled (Change: Reset fields to original task values)
                                       nameController.text = task.taskName;
+                                      priorityController.text = task.taskPriority;
                                       categoryController.text = task.taskCategory;
                                       anticipatedHoursController.text = task.anticipatedHours.toString();
                                       anticipatedMinutesController.text = task.anticipatedMinutes.toString();
@@ -635,6 +655,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
+                                      // TODO finish all edit options
                                       // Save changes (Change: Save changes to task fields)
                                       task.taskName = nameController.text;
                                       task.taskCategory = categoryController.text;
