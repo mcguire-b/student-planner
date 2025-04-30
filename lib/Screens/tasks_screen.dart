@@ -3,10 +3,8 @@ import 'package:planner/IndexDB/task_manage.dart';
 import 'package:planner/Screens/home_screen.dart';
 import 'add_task_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:planner/file_manager.dart';
 import '../Pomo_Menu_Classes/pomo_button.dart';
 
-//import '../IndexDB/task.dart';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -16,10 +14,10 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  //List<Map<String, dynamic>> tasks = [];
+
   List<Task> tasks = [];
 
-  List<bool> isEditing = []; // Corresponding edit states TODO REMOVE FALSE
+  List<bool> isEditing = []; // Corresponding edit states
 
   @override
   void initState() {
@@ -30,10 +28,7 @@ class _TasksScreenState extends State<TasksScreen> {
   Future<void> _loadTasks() async {
     List<Map<String, dynamic>> loadedTasks = await ManageTasks.loadTasks();
     setState(() {
-      //tasks = loadedTasks.map((map) => Task.fromMap(map)).toList();
       tasks = loadedTasks.map<Task>((map) => Task.fromMap(map)).toList();
-      print('Task Screen loaded Tasks $loadedTasks');
-      print('Task Screen: tasks: $tasks');
       isEditing = List.filled(tasks.length, false);
     });
   }
@@ -57,7 +52,6 @@ class _TasksScreenState extends State<TasksScreen> {
     );
 
     if (newTask != null) {
-      await FileManager.writeTaskData(newTask);
       _loadTasks(); // Reload tasks, which resets `isEditing`
     }
     _loadTasks();
@@ -123,6 +117,42 @@ class _TasksScreenState extends State<TasksScreen> {
       });
       _sortByTimeAscending = !_sortByTimeAscending;
     });
+  }
+
+  Future<void> _pickDate(BuildContext context, Task task, bool isStartDate) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? task.startDate : task.endDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isStartDate) {
+          task.startDate = pickedDate;
+        } else {
+          task.endDate = pickedDate;
+        }
+      });
+    }
+  }
+
+  Future<void> _pickTime(BuildContext context, Task task, bool isStartTime) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: isStartTime ? task.startTime : task.endTime,
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        if (isStartTime) {
+          task.startTime = pickedTime;
+        } else {
+          task.endTime = pickedTime;
+        }
+      });
+    }
   }
 
   @override
@@ -296,7 +326,6 @@ class _TasksScreenState extends State<TasksScreen> {
                     final bool editing = isEditing[index];
 
                     // Controllers for inline editing
-                    //TODO .toString() might not work here but, 
                     //i need to clear the error to test other things
                     TextEditingController nameController =
                         TextEditingController(text: task.taskName);
@@ -425,14 +454,24 @@ class _TasksScreenState extends State<TasksScreen> {
                                     Text(
                                       'Category:',
                                       style: TextStyle(
-                                        fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: categoryController,
-                                        )
-                                        : Text(task.taskCategory),
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.taskCategory,
+                                        decoration: InputDecoration(labelText: 'Category'),
+                                        items: ['Work', 'Personal', 'School', 'Other']
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.taskCategory = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
+                                        },
+                                      )
+                                    : Text(task.taskCategory),
                                   ],
                                 ),
                               ),
@@ -453,22 +492,16 @@ class _TasksScreenState extends State<TasksScreen> {
                                             Row(
                                               children: [
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        startDateController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'Start Date',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickDate(context, task, true), // true = start date
+                                                    child: Text('Start Date: ${DateFormat('M-dd-yyyy').format(task.startDate)}'),
                                                   ),
                                                 ),
                                                 SizedBox(width: 4),
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        startTimeController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'Start Time',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickTime(context, task, true), // true = start time
+                                                    child: Text('Start Time: ${task.startTime.format(context)}'),
                                                   ),
                                                 ),
                                               ],
@@ -476,22 +509,16 @@ class _TasksScreenState extends State<TasksScreen> {
                                             Row(
                                               children: [
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        endDateController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'End Date',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickDate(context, task, false), // false = end date
+                                                    child: Text('End Date: ${DateFormat('M-dd-yyyy').format(task.endDate)}'),
                                                   ),
                                                 ),
                                                 SizedBox(width: 4),
                                                 Expanded(
-                                                  child: TextField(
-                                                    controller:
-                                                        endTimeController,
-                                                    decoration: InputDecoration(
-                                                      labelText: 'End Time',
-                                                    ),
+                                                  child: TextButton(
+                                                    onPressed: () => _pickTime(context, task, false), // false = end time
+                                                    child: Text('End Time: ${task.endTime.format(context)}'),
                                                   ),
                                                 ),
                                               ],
@@ -519,15 +546,25 @@ class _TasksScreenState extends State<TasksScreen> {
                                   children: [
                                     Text(
                                       'Priority:',
-                                      style: TextStyle(
+                                        style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     editing
-                                        ? TextField(
-                                          controller: priorityController,
-                                        )
-                                        : Text(task.taskPriority),
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.taskPriority,
+                                        decoration: InputDecoration(labelText: 'Priority'),
+                                        items: ['High', 'Medium', 'Low']
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.taskPriority = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
+                                        },
+                                      )
+                                    : Text(task.taskPriority),
                                   ],
                                 ),
                               ),
@@ -585,7 +622,40 @@ class _TasksScreenState extends State<TasksScreen> {
                               ),
                             ],
                           ),
-                                 // Save and Cancel buttons when editing (Change: Added these buttons)
+                          //Status Dropdown
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                     Text(
+                                        'Status:',
+                                        style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      editing
+                                      ?DropdownButtonFormField<String>(
+                                        value: task.status,
+                                        decoration: InputDecoration(labelText: 'Status'),
+                                        items: ['To-Do', 'In Progress', 'Completed']
+                                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                                            .toList(),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            task.status = value!;
+                                          });
+                                          ManageTasks.saveTask(Task.taskToMap(task)); 
+                                        },
+                                      )
+                                    : Text(task.status ?? 'To-Do'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          // Save and Cancel buttons when editing (Change: Added these buttons)
                           if (editing) ...[
                             SizedBox(height: 8),
                             Row(
@@ -597,6 +667,7 @@ class _TasksScreenState extends State<TasksScreen> {
                                       isEditing[index] = false; // Change: Stop editing mode
                                       // Revert changes if canceled (Change: Reset fields to original task values)
                                       nameController.text = task.taskName;
+                                      priorityController.text = task.taskPriority;
                                       categoryController.text = task.taskCategory;
                                       anticipatedHoursController.text = task.anticipatedHours.toString();
                                       anticipatedMinutesController.text = task.anticipatedMinutes.toString();
@@ -607,11 +678,13 @@ class _TasksScreenState extends State<TasksScreen> {
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
+                                      // TODO finish all edit options
                                       // Save changes (Change: Save changes to task fields)
                                       task.taskName = nameController.text;
                                       task.taskCategory = categoryController.text;
                                       task.anticipatedHours = int.parse(anticipatedHoursController.text);
                                       task.anticipatedMinutes = int.parse(anticipatedMinutesController.text);
+                                      task.status = task.status;
                                       isEditing[index] = false; // Change: Stop editing mode
                                     });
                                     // Optionally, save the updated task in the database (Change: Update task in database)
@@ -622,50 +695,6 @@ class _TasksScreenState extends State<TasksScreen> {
                               ],
                             ),
                           ],
-
-                          //Status Dropdown
-                          //TODO fix this later
-                          // Row(
-                          //   children: [
-                          //     Expanded(
-                          //       child: Column(
-                          //         crossAxisAlignment: CrossAxisAlignment.start,
-                          //         children: [
-                          //           Text(
-                          //             'Status:',
-                          //             style: TextStyle(
-                          //               fontWeight: FontWeight.bold,
-                          //             ),
-                          //           ),
-                          //           editing
-                          //               ? DropdownButton<String>(
-                          //                 value: task['status'] ?? 'to-do',
-                          //                 items:
-                          //                     [
-                          //                           'to-do',
-                          //                           'in progress',
-                          //                           'completed',
-                          //                         ]
-                          //                         .map(
-                          //                           (status) =>
-                          //                               DropdownMenuItem(
-                          //                                 value: status,
-                          //                                 child: Text(status),
-                          //                               ),
-                          //                         )
-                          //                         .toList(),
-                          //                 onChanged: (value) {
-                          //                   setState(() {
-                          //                     tasks[index]['status'] = value!;
-                          //                   });
-                          //                 },
-                          //               )
-                          //               : Text(task['status'] ?? 'to-do'),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
                         ],
                       ),
                     );

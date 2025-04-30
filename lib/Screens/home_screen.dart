@@ -37,7 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
         taskData.map((task) {
           DateTime startDateTime = _combineDateAndTime(task['startDate'], task['startTime'],);
           DateTime endDateTime = _combineDateAndTime(task['endDate'],task['endTime'],);
-          //print('Home_Screen _loadTasks(): startDateTime: $startDateTime, endDateTime: $endDateTime');
 
           // 🟪 Assign color based on category
           Color appointmentColor;
@@ -71,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
             startTime: startDateTime,
             endTime: endDateTime,
             subject: task['taskName'],
-            notes: task["status"],
+            notes: task["status"] ?? 'To-Do',
             color: appointmentColor,
           );
         }).toList();
@@ -82,15 +81,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Helper function to combine date and time strings into DateTime
-  //TODO remove debug print statements
   DateTime _combineDateAndTime(String inputDate, String inputTime) {
     // Combine date and time in the format 'yyyy-MM-dd h:mm a'
     //2025-04-15T00:00:00.000 16:49 is format of inputeDate+inputeTime
     //create a full string with date and time
-    //print("InputDate: $inputDate, InputTime: $inputTime");
     String input = '$inputDate$inputTime';
-    //debug print
-    //print("_CombineDateAndTime Method Input: $input");
+  
     //get location of the T in input
     int tIndex = input.indexOf('T');
 
@@ -98,20 +94,19 @@ class _HomeScreenState extends State<HomeScreen> {
     String time = input.substring(input.length - 5); 
 
     String formatted = '${date}T$time:00'; // "2025-04-15T15:43"
-    //print('combineDateAndTime Method formatted: $formatted');
+    
     DateTime parsed = DateTime.parse(formatted);
-   // print('combineDateAndTime Method Parsed DateTime: $parsed');
 
     return parsed;
   }
 
   Icon _getStatusIcon(String? status) {
-    switch (status?.toLowerCase()) {
-      case 'completed':
+    switch (status) {
+      case 'Completed':
         return Icon(Icons.check_circle, color: Colors.white, size: 14);
-      case 'in progress':
+      case 'In Progress':
         return Icon(Icons.access_time, color: Colors.white, size: 14);
-      case 'to-do':
+      case 'To-Do':
       default:
         return Icon(Icons.push_pin, color: Colors.white, size: 14);
     }
